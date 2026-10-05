@@ -9,12 +9,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
   build:
@@ -33,13 +27,19 @@ jobs:
       - name: Build
         run: npm run build -- --base /Sovereign-QSLC_SSOT/
       - name: Upload Pages artifact
-        if: github.event_name != 'pull_request'
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
-    if: github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages-production
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
