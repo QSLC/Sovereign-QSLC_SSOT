@@ -39,7 +39,7 @@ function App() {
 
         <section className="mt-6 rounded-3xl border border-purple-400/20 bg-slate-950/80 p-6 md:p-8">
           <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-bold tracking-[.25em] text-purple-300">EXAMPLE TELEMETRY</p><h2 className="mt-2 text-3xl font-black">Automation throughput</h2><p className="mt-2 text-sm text-slate-400">Synthetic demonstration data — not customer, payroll, banking or SSOT records.</p></div><BarChart3 className="text-purple-300"/></div>
-          <div className="mt-8 h-52 flex items-end gap-2">{telemetry.map((v,i)=><div key={i} className="flex-1 rounded-t-md bg-gradient-to-t from-cyan-600 to-lime-300 opacity-80" style={{height:`${v}%`}} title={`Demo sample ${i+1}: ${v}`}/>)}</div>
+          <div className="mt-8 h-52 flex items-end gap-2">{telemetry.map((v,i)=><div key={v} className="flex-1 rounded-t-md bg-gradient-to-t from-cyan-600 to-lime-300 opacity-80" style={{height:`${v}%`}} title={`Demo sample ${i+1}: ${v}`}/>)}</div>
         </section>
 
         <section id="tiers" className="py-16"><div className="flex items-center gap-3"><Sparkles className="text-lime-300"/><h2 className="text-3xl font-black">Capability packages</h2></div><p className="mt-3 text-slate-400">Public feature examples. Commercial scope and pricing require an approved current offer.</p>
