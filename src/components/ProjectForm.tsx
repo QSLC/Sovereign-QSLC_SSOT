@@ -58,8 +58,9 @@ export default function ProjectForm({ project, onSubmit, onCancel, mode }: Proje
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Name */}
       <div className="space-y-2">
-        <label className="block text-sm font-bold uppercase tracking-wider text-neon-cyan">Project Name *</label>
+        <label htmlFor="project-name" className="block text-sm font-bold uppercase tracking-wider text-neon-cyan">Project Name *</label>
         <input
+          id="project-name"
           type="text"
           required
           value={formData.name}
@@ -71,9 +72,10 @@ export default function ProjectForm({ project, onSubmit, onCancel, mode }: Proje
 
       {/* Category */}
       <div className="space-y-2">
-        <label className="block text-sm font-bold uppercase tracking-wider text-neon-cyan">Category *</label>
+        <label htmlFor="project-category" className="block text-sm font-bold uppercase tracking-wider text-neon-cyan">Category *</label>
         <div className="relative">
           <select
+            id="project-category"
             required
             value={formData.category}
             onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
@@ -94,11 +96,12 @@ export default function ProjectForm({ project, onSubmit, onCancel, mode }: Proje
       {/* Metrics Sliders */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <label className="flex justify-between text-sm font-bold uppercase tracking-wider text-neon-pink">
+          <label htmlFor="project-enjoyment" className="flex justify-between text-sm font-bold uppercase tracking-wider text-neon-pink">
             <span>Enjoyment</span>
             <span className="text-gray-400">{formData.enjoyment}</span>
           </label>
           <input
+            id="project-enjoyment"
             type="range"
             min="0"
             max="10"
@@ -110,11 +113,12 @@ export default function ProjectForm({ project, onSubmit, onCancel, mode }: Proje
         </div>
 
         <div className="space-y-2">
-          <label className="flex justify-between text-sm font-bold uppercase tracking-wider text-neon-cyan">
+          <label htmlFor="project-resources" className="flex justify-between text-sm font-bold uppercase tracking-wider text-neon-cyan">
             <span>Resources</span>
             <span className="text-gray-400">{formData.resources}</span>
           </label>
           <input
+            id="project-resources"
             type="range"
             min="0"
             max="10"
@@ -126,11 +130,12 @@ export default function ProjectForm({ project, onSubmit, onCancel, mode }: Proje
         </div>
 
         <div className="space-y-2">
-          <label className="flex justify-between text-sm font-bold uppercase tracking-wider text-neon-green">
+          <label htmlFor="project-viability" className="flex justify-between text-sm font-bold uppercase tracking-wider text-neon-green">
             <span>Viability</span>
             <span className="text-gray-400">{formData.viability}</span>
           </label>
           <input
+            id="project-viability"
             type="range"
             min="0"
             max="10"
@@ -142,11 +147,12 @@ export default function ProjectForm({ project, onSubmit, onCancel, mode }: Proje
         </div>
 
         <div className="space-y-2">
-          <label className="flex justify-between text-sm font-bold uppercase tracking-wider text-neon-gold">
+          <label htmlFor="project-scale" className="flex justify-between text-sm font-bold uppercase tracking-wider text-neon-gold">
             <span>Scale</span>
             <span className="text-gray-400">{formData.scale}</span>
           </label>
           <input
+            id="project-scale"
             type="range"
             min="0"
             max="10"
@@ -160,8 +166,9 @@ export default function ProjectForm({ project, onSubmit, onCancel, mode }: Proje
 
       {/* Status */}
       <div className="space-y-2">
-        <label className="block text-sm font-bold uppercase tracking-wider text-neon-cyan">Status *</label>
+        <label htmlFor="project-status" className="block text-sm font-bold uppercase tracking-wider text-neon-cyan">Status *</label>
         <select
+          id="project-status"
           required
           value={formData.status}
           onChange={(e) => setFormData((prev) => ({ ...prev, status: e.target.value as ProjectStatus }))}
@@ -177,8 +184,9 @@ export default function ProjectForm({ project, onSubmit, onCancel, mode }: Proje
 
       {/* Action */}
       <div className="space-y-2">
-        <label className="block text-sm font-bold uppercase tracking-wider text-neon-cyan">Next Steps / Action *</label>
+        <label htmlFor="project-action" className="block text-sm font-bold uppercase tracking-wider text-neon-cyan">Next Steps / Action *</label>
         <textarea
+          id="project-action"
           required
           value={formData.action}
           onChange={(e) => setFormData((prev) => ({ ...prev, action: e.target.value }))}
