@@ -6,7 +6,10 @@ const ALLOWED_METRIC = new Set(['id','label','value','unit','status'])
 
 function rejectForbidden(value, path='$') {
   if (!value || typeof value !== 'object') return
-  if (Array.isArray(value)) return value.forEach((item,index)=>rejectForbidden(item,`${path}[${index}]`))
+  if (Array.isArray(value)) {
+    value.forEach((item,index) => { rejectForbidden(item,`${path}[${index}]`) })
+    return
+  }
   for (const [key,nested] of Object.entries(value)) {
     if (FORBIDDEN.test(key)) throw new Error(`Forbidden public-contract key at ${path}.${key}`)
     rejectForbidden(nested,`${path}.${key}`)
