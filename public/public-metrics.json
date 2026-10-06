@@ -1,0 +1,11 @@
+{
+  "generatedAt": "2026-10-06T00:00:00Z",
+  "sourceStatus": "demo",
+  "freshness": "synthetic",
+  "synthetic": true,
+  "metrics": [
+    {"id":"automation-throughput","label":"Automation throughput","value":92,"unit":"index","status":"ok"},
+    {"id":"evidence-coverage","label":"Evidence coverage","value":88,"unit":"percent","status":"ok"},
+    {"id":"public-nodes","label":"Public product nodes","value":5,"unit":"nodes","status":"ok"}
+  ]
+}
