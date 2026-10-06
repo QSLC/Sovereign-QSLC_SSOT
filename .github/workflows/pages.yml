@@ -22,6 +22,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Privacy Scanner Regression Tests
+        run: npm run privacy:test
       - name: Source Privacy Scan
         run: npm run privacy:scan
       - name: Lint
