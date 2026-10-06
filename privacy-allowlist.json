@@ -1,4 +1,15 @@
 {
   "paths": [],
-  "matches": []
+  "matches": [
+    {
+      "rule": "PAYROLL_VALUE",
+      "file": "scripts/governance-contracts.test.mjs",
+      "contains": "payroll:{gross:99999"
+    },
+    {
+      "rule": "PAYROLL_VALUE",
+      "file": "scripts/public-contract-validator.test.mjs",
+      "contains": "payroll:{gross:9000"
+    }
+  ]
 }
