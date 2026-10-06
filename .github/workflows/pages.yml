@@ -1,4 +1,4 @@
-name: Deploy visual app to GitHub Pages
+name: Deploy QSLC EVE to GitHub Pages
 
 on:
   push:
@@ -22,10 +22,14 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Source Privacy Scan
+        run: npm run privacy:scan
       - name: Lint
         run: npm run lint
       - name: Build
         run: npm run build -- --base /Sovereign-QSLC_SSOT/
+      - name: Bundle Privacy Scan
+        run: npm run privacy:scan:dist
       - name: Upload Pages artifact
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
