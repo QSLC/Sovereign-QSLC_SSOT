@@ -1,34 +1,31 @@
-# Contributing
+# Contributing to QSLC EVE
 
-Thanks for your interest in contributing! This project welcomes pull requests.
+Keep changes focused, reviewable, and safe for a public repository.
 
-## Getting Started
+## Required Checks
 
-1. Fork the repo
-2. Clone your fork
-3. Install dependencies: `npm install`
-4. Create a branch: `git checkout -b your-feature`
-5. Make your changes
-6. Run the dev server to verify: `npm run dev`
-7. Commit and push
-8. Open a pull request
+Before opening a pull request, run:
 
-## Guidelines
+```bash
+npm run privacy:scan
+npm run lint
+npm run build
+npm run privacy:scan:dist
+```
 
-- Keep PRs focused on a single change
-- Follow existing code style and conventions
-- Test your changes locally before submitting
-- Write clear commit messages
+## Public Data Rules
 
-## Issues
+Do not commit personal data, payroll/check records, bank account or routing details, credentials, API secrets, private SSOT values, owner-only evidence, or administrative records. Public examples must be synthetic or explicitly sanitized.
 
-Found a bug or have a feature idea? Open an issue. Label suggestions:
+If the privacy scanner reports a false positive, add the narrowest reviewed allowlist entry. Do not disable a rule globally to make CI pass.
 
-- `bug` for broken behavior
-- `enhancement` for feature requests
-- `good first issue` for beginner-friendly tasks
+## Pull Requests
 
-## License
+- Keep each PR scoped to one logical change.
+- Explain data sources and whether values are synthetic, sanitized, or public.
+- Include screenshots for visual changes when useful.
+- Do not merge when privacy, lint, build, or bundle validation is red.
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+## Third-Party Code
 
+Respect third-party licenses and clearly distinguish QSLC original work from open-source dependencies and external services.
