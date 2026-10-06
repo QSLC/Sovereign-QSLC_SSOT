@@ -7,7 +7,7 @@ const allowlistPath = path.join(root, 'privacy-allowlist.json')
 const allowlist = fs.existsSync(allowlistPath) ? JSON.parse(fs.readFileSync(allowlistPath, 'utf8')) : { paths: [], matches: [] }
 
 const ignoredDirs = new Set(['.git', 'node_modules'])
-const ignoredFiles = new Set(['package-lock.json'])
+const ignoredFiles = new Set(['package-lock.json', 'privacy-allowlist.json'])
 const textExt = new Set(['.ts', '.tsx', '.js', '.mjs', '.json', '.md', '.html', '.css', '.yml', '.yaml', '.txt'])
 
 const rules = [
@@ -20,14 +20,14 @@ const rules = [
 
 function walk(p) {
   const stat = fs.statSync(p)
-  if (stat.isFile()) return [p]
+  if (stat.isFile()) return ignoredFiles.has(path.basename(p)) ? [] : [p]
   const out = []
   for (const name of fs.readdirSync(p)) {
-    if (ignoredDirs.has(name)) continue
+    if (ignoredDirs.has(name) || ignoredFiles.has(name)) continue
     const child = path.join(p, name)
     const childStat = fs.statSync(child)
     if (childStat.isDirectory()) out.push(...walk(child))
-    else if (!ignoredFiles.has(name) && textExt.has(path.extname(name))) out.push(child)
+    else if (textExt.has(path.extname(name))) out.push(child)
   }
   return out
 }

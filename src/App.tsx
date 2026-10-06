@@ -3,6 +3,7 @@ import { EvidenceGateDemo } from './public/components/EvidenceGateDemo'
 import { LearningStudio } from './public/components/LearningStudio'
 import { LivingCalculatorDemo } from './public/components/LivingCalculatorDemo'
 import { PricingGrid } from './public/components/PricingGrid'
+import { PublicStatusPanel } from './public/components/PublicStatusPanel'
 import { SystemStarMap } from './public/components/SystemStarMap'
 
 function App() {
@@ -11,7 +12,7 @@ function App() {
     <div className="relative mx-auto max-w-7xl px-4 py-5 sm:px-6 md:px-10">
       <nav className="sticky top-3 z-30 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-400/20 bg-slate-950/80 px-4 py-3 backdrop-blur-xl">
         <div><p className="font-black tracking-[.2em] text-lime-300">QSLC EVE</p><p className="text-[11px] text-slate-500">Sovereign Command Center</p></div>
-        <div className="flex flex-wrap gap-2 text-xs font-bold"><a href="#pricing" className="nav-chip">Pricing</a><a href="#calculator" className="nav-chip">Calculator</a><a href="#topology" className="nav-chip">Star Map</a><a href="#learning" className="nav-chip">Learn</a></div>
+        <div className="flex flex-wrap gap-2 text-xs font-bold"><a href="#status" className="nav-chip">Status</a><a href="#pricing" className="nav-chip">Pricing</a><a href="#calculator" className="nav-chip">Calculator</a><a href="#topology" className="nav-chip">Star Map</a><a href="#learning" className="nav-chip">Learn</a></div>
       </nav>
 
       <section className="grid items-center gap-10 py-14 lg:grid-cols-[1.05fr_.95fr] lg:py-20">
@@ -21,6 +22,7 @@ function App() {
 
       <section className="grid gap-4 md:grid-cols-3">{[[ShieldCheck,'Evidence Governance','No Evidence = No Approval is taught as an explicit state flow.'],[Sparkles,'Interactive Learning','Users can explore products, demos, and architecture without exposing private systems.'],[LockKeyhole,'Protected Boundary','Owner/admin operations remain outside the public product surface.']].map(([Icon,title,copy])=>{const I=Icon as typeof ShieldCheck;return <article key={title as string} className="glass-card p-6"><I className="text-cyan-300"/><h2 className="mt-5 text-xl font-black">{title as string}</h2><p className="mt-2 text-sm leading-6 text-slate-400">{copy as string}</p></article>})}</section>
 
+      <PublicStatusPanel />
       <PricingGrid />
       <LivingCalculatorDemo />
       <EvidenceGateDemo />
