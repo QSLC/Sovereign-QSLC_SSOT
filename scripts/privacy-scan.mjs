@@ -13,8 +13,9 @@ const textExt = new Set(['.ts', '.tsx', '.js', '.mjs', '.json', '.md', '.html', 
 const rules = [
   { id: 'BANK_ACCOUNT_NUMBER', re: /\b(?:account|acct|routing)\s*(?:number|#|no\.?|:)\s*\d{6,17}\b/gi },
   { id: 'ROUTING_NUMBER', re: /\b(?:routing|aba)\s*(?:number|#|no\.?|:)\s*\d{9}\b/gi },
-  { id: 'SECRET_TOKEN', re: /\b(?:api[_ -]?key|secret|token|password)\s*[:=]\s*["']?[A-Za-z0-9_\-]{16,}/gi },
-  { id: 'PAYROLL_VALUE', re: /\b(?:payroll|paycheck|check|gross pay|net pay)\b.{0,40}\$?\d{3,}(?:,\d{3})*(?:\.\d{2})?/gi },
+  { id: 'SECRET_TOKEN', re: /\b(?:api[_ -]?key|secret|token|password)\s*[:=]\s*["']?[A-Za-z0-9_-]{16,}/gi },
+  { id: 'CHECK_NUMBER', re: /\b(?:paycheck|check)\s*(?:number|#|no\.?|:)\s*\d{3,17}\b/gi },
+  { id: 'PAYROLL_VALUE', re: /\b(?:payroll|paycheck|gross pay|net pay)\b.{0,40}\$?\d{3,}(?:,\d{3})*(?:\.\d{2})?/gi },
 ]
 
 function walk(p) {
