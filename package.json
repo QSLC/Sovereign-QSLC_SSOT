@@ -1,13 +1,14 @@
 {
   "name": "qslc-eve-command-center",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "biome lint .",
     "preview": "vite preview",
+    "public:test": "node scripts/public-contracts.test.mjs",
     "privacy:test": "node scripts/privacy-scan.test.mjs",
     "privacy:scan": "node scripts/privacy-scan.mjs .",
     "privacy:scan:dist": "node scripts/privacy-scan.mjs dist"
