@@ -26,6 +26,14 @@ jobs:
         run: npm run privacy:test
       - name: Public Product Contract Tests
         run: npm run public:test
+      - name: Governance Contract Tests
+        run: npm run governance:test
+      - name: Public Projection Validator Tests
+        run: npm run contract:test
+      - name: Validate Public Projection Fixture
+        run: npm run contract:validate
+      - name: Deployment Health Unit Tests
+        run: npm run deploy:test
       - name: Source Privacy Scan
         run: npm run privacy:scan
       - name: Lint
@@ -57,3 +65,17 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  smoke:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify deployed GitHub Pages host
+        run: node scripts/check-deployment.mjs https://qslc.github.io/Sovereign-QSLC_SSOT/ qslc.github.io
