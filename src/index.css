@@ -1,15 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  --color-neon-pink: #FF2A6D;
-  --color-neon-cyan: #05D9E8;
-  --color-neon-green: #00FF9C;
-  --color-neon-gold: #FFD700;
-  --color-void: #080808;
+  --color-qslc-lime: #BEF264;
+  --color-qslc-purple: #C084FC;
+  --color-qslc-cyan: #67E8F9;
+  --color-qslc-void: #030611;
 }
 
 @layer base {
   body {
-    @apply bg-void text-gray-100 font-mono antialiased;
+    @apply bg-[#030611] text-slate-100 antialiased;
   }
 }

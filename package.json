@@ -1,21 +1,21 @@
 {
-  "name": "sovereign-matrix",
+  "name": "qslc-eve-command-center",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "biome lint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "privacy:test": "node scripts/privacy-scan.test.mjs",
+    "privacy:scan": "node scripts/privacy-scan.mjs .",
+    "privacy:scan:dist": "node scripts/privacy-scan.mjs dist"
   },
   "dependencies": {
-    "clsx": "^2.1.1",
-    "motion": "^12.29.2",
     "lucide-react": "^0.562.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "tailwind-merge": "^3.4.0"
+    "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
