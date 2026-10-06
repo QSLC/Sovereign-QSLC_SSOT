@@ -1,0 +1,11 @@
+import { BookOpen, Braces, Box, Orbit, ShieldCheck } from 'lucide-react'
+
+const modules = [
+  { title:'Single Source of Truth', status:'Live concept', what:'Explains how authoritative records feed sanitized public outputs.', why:'Reduces conflicting operational data.', action:'#calculator', Icon:BookOpen },
+  { title:'Evidence Before Approval', status:'Interactive demo', what:'Shows how evidence gates block execution until requirements are met.', why:'Makes governance behavior visible and teachable.', action:'#evidence', Icon:ShieldCheck },
+  { title:'API / Data Lab', status:'Product capability', what:'Demonstrates customer-scoped API and synthetic data patterns.', why:'Separates experimentation from private production records.', action:'#topology', Icon:Braces },
+  { title:'Self-Hosted Deployment', status:'Available offer', what:'Shows the customer-controlled deployment model.', why:'Supports isolated environments and ownership boundaries.', action:'#pricing', Icon:Box },
+  { title:'Unreal / Dispatch Orbit', status:'Concept module', what:'Future simulation and training direction for operational command scenarios.', why:'Extends learning into spatial and simulation workflows.', action:'#topology', Icon:Orbit },
+] as const
+
+export function LearningStudio(){return <section id="learning" className="section-shell"><div className="section-heading"><span className="eyebrow">QSLC LEARNING STUDIO</span><h2>Teach the system while people explore it.</h2><p>Each module explains what it does, why it matters, and whether it is live, demonstrated, or still a concept.</p></div><div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{modules.map(({title,status,what,why,action,Icon})=><article key={title} className="glass-card p-6"><Icon className="text-cyan-300"/><p className="mt-5 text-xs font-black uppercase tracking-[.18em] text-purple-300">{status}</p><h3 className="mt-2 text-xl font-black">{title}</h3><p className="mt-4 text-sm text-slate-300"><strong className="text-white">What it does:</strong> {what}</p><p className="mt-3 text-sm text-slate-400"><strong className="text-white">Why it matters:</strong> {why}</p><a href={action} className="mt-6 inline-block text-sm font-black text-lime-300">Try related demo →</a></article>)}</div></section>}
