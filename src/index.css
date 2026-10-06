@@ -8,7 +8,29 @@
 }
 
 @layer base {
-  body {
-    @apply bg-[#030611] text-slate-100 antialiased;
-  }
+  html { scroll-behavior: smooth; }
+  body { @apply bg-[#030611] text-slate-100 antialiased; }
+  *:focus-visible { outline: 2px solid #bef264; outline-offset: 3px; }
+}
+
+@layer components {
+  .glass-card { @apply rounded-2xl border border-cyan-400/15 bg-slate-950/75 shadow-[0_18px_60px_#0008] backdrop-blur-xl; }
+  .section-shell { @apply py-14 md:py-20; }
+  .section-heading { @apply max-w-3xl; }
+  .section-heading h2 { @apply mt-3 text-3xl font-black leading-tight text-white md:text-5xl; }
+  .section-heading p { @apply mt-4 text-sm leading-6 text-slate-400 md:text-base; }
+  .eyebrow { @apply text-xs font-black tracking-[.22em] text-lime-300; }
+  .nav-chip { @apply rounded-lg border border-slate-700 px-3 py-2 text-slate-300 transition hover:border-cyan-300/50 hover:text-white; }
+  .primary-cta { @apply rounded-xl bg-lime-300 px-5 py-3 font-black text-slate-950 shadow-[0_0_30px_#bef26433] transition hover:brightness-110; }
+  .secondary-cta { @apply rounded-xl border border-cyan-300/30 bg-cyan-300/5 px-5 py-3 font-black text-cyan-100 transition hover:border-cyan-300/60; }
+  .demo-warning { @apply rounded-xl border border-purple-400/30 bg-purple-400/10 px-4 py-3 text-xs font-black tracking-wide text-purple-200; }
+  .orbit { animation: orbit 22s linear infinite; }
+  .orbit-reverse { animation: orbit 16s linear infinite reverse; }
+}
+
+@keyframes orbit { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
