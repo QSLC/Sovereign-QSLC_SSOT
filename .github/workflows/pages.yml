@@ -24,6 +24,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Privacy Scanner Regression Tests
         run: npm run privacy:test
+      - name: Public Product Contract Tests
+        run: npm run public:test
       - name: Source Privacy Scan
         run: npm run privacy:scan
       - name: Lint
