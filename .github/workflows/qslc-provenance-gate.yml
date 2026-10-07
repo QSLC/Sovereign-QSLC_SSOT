@@ -1,0 +1,37 @@
+name: EVE IP Provenance Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/IP-PROVENANCE-AND-AI-ASSISTANCE.md'
+      - 'public/ip-provenance.html'
+      - 'src/public/components/GovernanceCenter.tsx'
+      - '.github/workflows/qslc-provenance-gate.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/IP-PROVENANCE-AND-AI-ASSISTANCE.md'
+      - 'public/ip-provenance.html'
+      - 'src/public/components/GovernanceCenter.tsx'
+      - '.github/workflows/qslc-provenance-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify provenance records
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s docs/IP-PROVENANCE-AND-AI-ASSISTANCE.md
+          test -s public/ip-provenance.html
+          grep -qi "Antwan White" docs/IP-PROVENANCE-AND-AI-ASSISTANCE.md
+          grep -qi "Quantum Sovereign Logistics Corp" docs/IP-PROVENANCE-AND-AI-ASSISTANCE.md
+          grep -qi "eve@qslc-hei.com" public/ip-provenance.html
