@@ -1,0 +1,42 @@
+name: EVE Entitlement Gateway Health
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/entitlement/**'
+      - '.github/workflows/qslc-entitlement-health.yml'
+  schedule:
+    - cron: '17 16 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  entitlement-health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Verify live entitlement health
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(curl -L -sS --fail --max-time 30 https://qslc-hei.com/api/entitlement/health)"
+          echo "$body"
+          BODY="$body" node - <<'NODE'
+          const d = JSON.parse(process.env.BODY)
+          if (d.ok !== true) throw new Error('health ok=false')
+          if (d.kv_bound !== true) throw new Error('ENTITLEMENTS KV is not bound')
+          if (d.webhook_secret_configured !== true) throw new Error('Stripe webhook secret is not configured')
+          console.log('Entitlement health verified')
+          NODE
+
+      - name: Verify invalid session fails closed
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl -L -sS -o /tmp/verify.json -w '%{http_code}' --max-time 30 'https://qslc-hei.com/api/entitlement/verify?session_id=invalid&product=book-01')"
+          cat /tmp/verify.json
+          test "$code" = "400"
+          grep -q 'missing_or_invalid_session' /tmp/verify.json
