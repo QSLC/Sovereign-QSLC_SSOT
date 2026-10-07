@@ -40,6 +40,36 @@ jobs:
         run: npm run lint
       - name: Build
         run: npm run build -- --base /Sovereign-QSLC_SSOT/
+      - name: Generate release attestation
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/.well-known
+          cat > dist/.well-known/qslc-release.json <<EOF
+          {
+            "schema": "qslc.release-attestation.v1",
+            "repository": "$GITHUB_REPOSITORY",
+            "commit_sha": "$GITHUB_SHA",
+            "workflow": "$GITHUB_WORKFLOW",
+            "run_id": "$GITHUB_RUN_ID",
+            "run_attempt": "$GITHUB_RUN_ATTEMPT",
+            "ref": "$GITHUB_REF",
+            "canonical_url": "https://qslc-hei.com",
+            "source_url": "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA",
+            "run_url": "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID",
+            "generated_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+          find dist -type f ! -path 'dist/.well-known/qslc-release.sha256' -print0 | sort -z | xargs -0 sha256sum > dist/.well-known/qslc-release.sha256
+      - name: Upload release attestation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: qslc-release-attestation-${{ github.sha }}
+          path: |
+            dist/.well-known/qslc-release.json
+            dist/.well-known/qslc-release.sha256
+          if-no-files-found: error
+          retention-days: 90
       - name: Bundle Privacy Scan
         run: npm run privacy:scan:dist
       - name: Upload Pages artifact
@@ -79,3 +109,11 @@ jobs:
           node-version: 22
       - name: Verify deployed GitHub Pages host
         run: node scripts/check-deployment.mjs https://qslc.github.io/Sovereign-QSLC_SSOT/ qslc.github.io
+      - name: Verify deployed release attestation
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://qslc.github.io/Sovereign-QSLC_SSOT/.well-known/qslc-release.json"
+          body="$(curl -L -sS --fail --max-time 30 "$url")"
+          echo "$body" | grep -F "\"commit_sha\": \"$GITHUB_SHA\""
+          echo "Release attestation matches deployed commit $GITHUB_SHA"
