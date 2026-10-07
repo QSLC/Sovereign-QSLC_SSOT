@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "product": "QSLC EVE Starter Command Center Template",
+  "governance": {
+    "rule": "No Evidence = No Approval",
+    "states": [
+      "VERIFIED",
+      "PENDING_EXTERNAL",
+      "REVIEW",
+      "UNKNOWN"
+    ]
+  },
+  "boundaries": {
+    "public": [
+      "synthetic_demo",
+      "approved_product_info",
+      "public_status"
+    ],
+    "private": [
+      "credentials",
+      "banking",
+      "payroll",
+      "private_ssot",
+      "owner_evidence"
+    ]
+  },
+  "modules": [
+    "status",
+    "evidence_gate",
+    "tasks",
+    "audit_log",
+    "public_projection"
+  ],
+  "automation": {
+    "default": "review_important_actions",
+    "require_provider_authorization": true
+  },
+  "branding": {
+    "product_name": "Customer Command Center",
+    "theme": "customer-controlled"
+  }
+}
