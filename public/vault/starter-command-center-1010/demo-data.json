@@ -1,0 +1,38 @@
+{
+  "synthetic": true,
+  "notice": "Demo data only. Replace with authorized sources.",
+  "status": {
+    "system": "DEMO_OK",
+    "sync": "SYNTHETIC",
+    "evidence": "VERIFIED_DEMO"
+  },
+  "metrics": [
+    {
+      "name": "Open Tasks",
+      "value": 4,
+      "source": "demo"
+    },
+    {
+      "name": "Verified Records",
+      "value": 18,
+      "source": "demo"
+    },
+    {
+      "name": "Pending Reviews",
+      "value": 2,
+      "source": "demo"
+    }
+  ],
+  "events": [
+    {
+      "time": "09:00",
+      "action": "Synthetic sync completed",
+      "state": "VERIFIED_DEMO"
+    },
+    {
+      "time": "09:15",
+      "action": "Evidence gate tested",
+      "state": "VERIFIED_DEMO"
+    }
+  ]
+}
