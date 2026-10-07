@@ -44,7 +44,7 @@ jobs:
           if (!Array.isArray(d.titles) || d.titles.length !== 7) throw new Error('Expected seven digital titles');
           for (const t of d.titles) {
             if (t.direct_status !== 'LIVE') throw new Error(t.id+' is not marked LIVE');
-            if (!/^https://(book|buy).stripe.com//.test(t.direct_checkout)) throw new Error(t.id+' checkout host invalid');
+            if (!(t.direct_checkout.startsWith('https://book.stripe.com/') || t.direct_checkout.startsWith('https://buy.stripe.com/'))) throw new Error(t.id+' checkout host invalid');
             if (t.kdp_status === 'LIVE' && !t.asin) throw new Error(t.id+' cannot be KDP LIVE without ASIN evidence');
           }
           if (d.bundle?.status !== 'LIVE') throw new Error('Digital Vault is not marked LIVE');
