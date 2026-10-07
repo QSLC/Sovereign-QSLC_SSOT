@@ -30,10 +30,10 @@ export function BooksStore() {
       <article className="glass-card p-7">
         <Sparkles className="text-lime-300"/>
         <h3 className="mt-4 text-2xl font-black">EVE-1010 Sovereign Systems Digital Vault</h3>
-        <p className="mt-3 text-slate-300">Complete seven-volume digital bundle plus Live Ledger companion resources.</p>
+        <p className="mt-3 text-slate-300">Complete seven-volume digital bundle plus Live Ledger companion resources. Checkout now redirects directly to the licensed browser Reader Vault for immediate access.</p>
         <p className="mt-5 text-4xl font-black text-lime-300">$59.99</p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <a className="primary-cta" href="https://book.stripe.com/28EcN59cFd6x2UW5LH9sk09" target="_blank" rel="noreferrer">Buy direct <ExternalLink size={15}/></a>
+          <a className="primary-cta" href="https://book.stripe.com/28EcN59cFd6x2UW5LH9sk09" target="_blank" rel="noreferrer">Buy & open Reader Vault <ExternalLink size={15}/></a>
           <a className="secondary-cta" href="mailto:qslc1010@qslc-hei.com?subject=EVE-1010%20Books">Ask about the series <Mail size={15}/></a>
         </div>
       </article>
