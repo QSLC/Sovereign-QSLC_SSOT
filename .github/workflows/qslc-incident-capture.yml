@@ -1,0 +1,43 @@
+name: EVE Incident Capture
+
+on:
+  workflow_run:
+    workflows: ['Deploy QSLC EVE to GitHub Pages']
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Write incident record
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p incident
+          cat > incident/incident.json <<EOF
+          {
+            "schema": "qslc.incident.v1",
+            "workflow_name": "${{ github.event.workflow_run.name }}",
+            "workflow_run_id": "${{ github.event.workflow_run.id }}",
+            "failed_commit_sha": "${{ github.event.workflow_run.head_sha }}",
+            "workflow_url": "${{ github.event.workflow_run.html_url }}",
+            "conclusion": "${{ github.event.workflow_run.conclusion }}",
+            "policy": "Preserve evidence, stop stacking changes, classify exact failure, recover using a normal corrective or revert commit; never rewrite production history."
+          }
+          EOF
+      - name: Upload incident evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: qslc-production-incident-${{ github.event.workflow_run.id }}
+          path: incident/incident.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Incident summary
+        run: |
+          echo '### EVE Production Incident Captured' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Failure evidence has been preserved. Do not stack a new production push until the exact failing stage is classified.' >> "$GITHUB_STEP_SUMMARY"

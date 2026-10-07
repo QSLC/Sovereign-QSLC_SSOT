@@ -1,6 +1,17 @@
 name: EVE Link Integrity
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/publishing-manifest.json'
+      - 'public/terms.html'
+      - 'public/privacy.html'
+      - 'public/refunds.html'
+      - 'public/digital-asset-notice.html'
+      - 'public/ip-provenance.html'
+      - 'public/formula-provenance.json'
+      - '.github/workflows/qslc-link-integrity.yml'
   schedule:
     - cron: '41 15 * * *'
   workflow_dispatch:
