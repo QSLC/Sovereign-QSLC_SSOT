@@ -35,7 +35,7 @@ function App() {
       <SystemStarMap />
       <LearningStudio />
 
-      <footer className="mt-10 border-t border-slate-800 py-8 text-xs leading-6 text-slate-500">Quantum Sovereign Logistics Corp • qslc-hei.com • Books & product contact: qslc1010@qslc-hei.com • Public QSLC EVE capability gateway • Synthetic demonstrations are not financial, payroll, banking, or private SSOT records.</footer>
+      <footer className="mt-10 border-t border-slate-800 py-8 text-xs leading-6 text-slate-500">Quantum Sovereign Logistics Corp • qslc-hei.com • Books & product contact: qslc1010@qslc-hei.com • <a href="/terms.html" className="text-cyan-300">Terms</a> • <a href="/privacy.html" className="text-cyan-300">Privacy</a> • <a href="/refunds.html" className="text-cyan-300">Refunds</a> • <a href="/digital-asset-notice.html" className="text-cyan-300">Digital Asset Notice</a> • Public QSLC EVE capability gateway • Synthetic demonstrations are not financial, payroll, banking, or private SSOT records.</footer>
     </div>
   </main>
 }
