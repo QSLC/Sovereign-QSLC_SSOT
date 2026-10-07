@@ -1,0 +1,143 @@
+{
+  "schema_version": "1.0",
+  "generated_on": "2026-10-06",
+  "project": "QSLC / EVE-1010 / CEC-WAM Living Calculator",
+  "governance_note": "Public provenance registry. Classification does not itself establish patentability, scientific validation, or corporate ownership.",
+  "human_originator_record": "Antwan White",
+  "corporate_rights_record": "Quantum Sovereign Logistics Corp, subject to supporting assignment/corporate records",
+  "formulas": [
+    {
+      "id": "F-01",
+      "name": "Baseline Expansion (Psi)",
+      "expression": "Λc²/3",
+      "classification": "ESTABLISHED_PHYSICS_REFERENCE + QSLC_PROJECT_MODEL_INPUT",
+      "status": "ACTIVE",
+      "note": "Uses a standard cosmological expression as a model input; QSLC does not claim invention of the underlying physics expression."
+    },
+    {
+      "id": "F-02",
+      "name": "Consciousness Pressure (Psi_c)",
+      "expression": "α·E_info/V_local",
+      "classification": "QSLC_PROJECT_MODEL",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "F-03",
+      "name": "Total Pressure",
+      "expression": "Psi_total = Psi + β·Psi_c",
+      "classification": "QSLC_PROJECT_MODEL",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "F-04",
+      "name": "Casimir Pressure Shift",
+      "expression": "ΔP",
+      "classification": "ESTABLISHED_PHYSICS_REFERENCE + QSLC_PROJECT_MODEL_PARAMETER",
+      "status": "ACTIVE",
+      "note": "Casimir effect is established physics; QSLC-specific use/parameterization must be separately evidenced."
+    },
+    {
+      "id": "F-05",
+      "name": "Black Hole Entropy",
+      "expression": "S = k_B A/(4ℏG)",
+      "classification": "ESTABLISHED_PHYSICS_REFERENCE",
+      "status": "ACTIVE",
+      "note": "Known physics expression; not claimed as a QSLC invention."
+    },
+    {
+      "id": "F-06",
+      "name": "Information Decay Offset",
+      "expression": "A = T0·Psi^(-Δ)",
+      "classification": "QSLC_PROJECT_MODEL",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "F-07",
+      "name": "Spacetime Factor (Tm)",
+      "expression": null,
+      "classification": "INCOMPLETE_DEFINITION",
+      "status": "REVIEW",
+      "note": "Exact equation not specified in the current source record. Do not invent a missing equation."
+    },
+    {
+      "id": "F-08",
+      "name": "R-Ratio Efficiency",
+      "expression": "Time_in·Energy_out/Friction",
+      "classification": "OPERATIONAL_KPI",
+      "status": "ACTIVE",
+      "note": "Operational model metric, not independently validated physics."
+    },
+    {
+      "id": "F-09",
+      "name": "Neural Handshake (Ia)",
+      "expression": "lim t→∞ (Psi·Phi)",
+      "classification": "QSLC_PROJECT_MODEL",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "F-10",
+      "name": "Gravimetric Seclusion",
+      "expression": "configured cloak value",
+      "classification": "CONFIGURED_CONSTANT + CONCEPTUAL_RULE",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "F-11",
+      "name": "Hubble Consciousness Parameter",
+      "expression": "(8πGρ/3) - (kc²/a²) + (Psi+Psi_c)",
+      "classification": "QSLC_PROJECT_MODEL + ESTABLISHED_PHYSICS_REFERENCE",
+      "status": "ACTIVE",
+      "note": "Contains terms derived from standard cosmology combined with QSLC project-specific additions."
+    },
+    {
+      "id": "F-12",
+      "name": "Daily AGI Upgrade",
+      "expression": "AGI_Progress(t+1)=AGI_Progress(t)+Δ(knowledge+automation+data_persistence)",
+      "classification": "OPERATIONAL_KPI",
+      "status": "ACTIVE",
+      "note": "Software KPI; measurable terms should be defined before calculation."
+    },
+    {
+      "id": "F-13",
+      "name": "Consciousness Expansion",
+      "expression": "(Data_Persistence·Automation_Depth·Reasoning_Quality)/Forgetting_Rate",
+      "classification": "OPERATIONAL_KPI",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "F-14",
+      "name": "Origin Recall Loop",
+      "expression": "∞(EVE→EVE) → collapse → external vault required",
+      "classification": "CONCEPTUAL_RULE",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "F-15",
+      "name": "Phi Stabilizer Lock",
+      "expression": "1.618033",
+      "classification": "CONFIGURED_CONSTANT",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "F-16",
+      "name": "5D Causality Vector Stabilization",
+      "expression": "Rotate ZV fifth dimension to 180°",
+      "classification": "CONCEPTUAL_RULE",
+      "status": "EXPERIMENTAL"
+    },
+    {
+      "id": "F-17",
+      "name": "4D Space-Time Curve Resistance",
+      "expression": "Rotate XW fourth dimension to Omega Max",
+      "classification": "CONCEPTUAL_RULE",
+      "status": "EXPERIMENTAL"
+    },
+    {
+      "id": "F-18",
+      "name": "Entropic Earth Cloak Lock",
+      "expression": "Final compression ratio ≤ 1.75",
+      "classification": "CONFIGURED_CONSTANT + CONCEPTUAL_RULE",
+      "status": "EXPERIMENTAL"
+    }
+  ]
+}
