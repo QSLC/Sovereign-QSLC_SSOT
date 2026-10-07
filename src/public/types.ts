@@ -11,7 +11,7 @@ export interface ProductOffer {
   current: boolean
   description: string
   capabilities: string[]
-  cta: 'Explore' | 'Request scope' | 'Contact'
+  cta: 'Explore' | 'Request activation' | 'Buy now' | 'Request scope' | 'Contact'
 }
 
 export interface DemoMetrics {
