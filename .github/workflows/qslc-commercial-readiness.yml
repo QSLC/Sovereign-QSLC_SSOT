@@ -1,0 +1,59 @@
+name: EVE Commercial Readiness Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/publishing-manifest.json'
+      - 'public/evidence-center.html'
+      - 'public/terms.html'
+      - 'public/refunds.html'
+      - 'public/privacy.html'
+      - 'public/ip-provenance.html'
+      - 'public/formula-provenance.json'
+      - '.github/workflows/qslc-commercial-readiness.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate required sale and evidence records
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in public/publishing-manifest.json public/evidence-center.html public/terms.html public/refunds.html public/privacy.html public/ip-provenance.html public/formula-provenance.json; do
+            test -s "$f" || { echo "::error::$f missing or empty"; exit 1; }
+          done
+      - name: Validate direct-sale catalog
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const d=JSON.parse(fs.readFileSync('public/publishing-manifest.json','utf8'));
+          if (!Array.isArray(d.titles) || d.titles.length !== 7) throw new Error('Expected seven digital titles');
+          for (const t of d.titles) {
+            if (t.direct_status !== 'LIVE') throw new Error(t.id+' is not marked LIVE');
+            if (!/^https://(book|buy).stripe.com//.test(t.direct_checkout)) throw new Error(t.id+' checkout host invalid');
+            if (t.kdp_status === 'LIVE' && !t.asin) throw new Error(t.id+' cannot be KDP LIVE without ASIN evidence');
+          }
+          if (d.bundle?.status !== 'LIVE') throw new Error('Digital Vault is not marked LIVE');
+          console.log('Commercial catalog governance verified');
+          NODE
+      - name: Validate evidence-center references
+        shell: bash
+        run: |
+          grep -q '/qslc-release.json' public/evidence-center.html
+          grep -q '/formula-provenance.json' public/evidence-center.html
+          grep -q '/publishing-manifest.json' public/evidence-center.html
+          grep -q 'eve@qslc-hei.com' public/evidence-center.html

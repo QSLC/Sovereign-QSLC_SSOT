@@ -15,7 +15,7 @@ export function GovernanceCenter() {
     <div className="section-heading">
       <span className="eyebrow">GOVERNANCE CENTER</span>
       <h2>Evidence first. Public claims second.</h2>
-      <p>QSLC EVE uses a documented governance baseline so product, publishing, digital-asset, privacy, and automation claims are separated from unverified assumptions.</p>
+      <p>QSLC EVE uses a documented governance baseline so product, publishing, digital-asset, privacy, IP-provenance, and automation claims are separated from unverified assumptions.</p>
     </div>
     <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {rules.map(([Icon,title,copy]) => <article key={title} className="glass-card p-6">
@@ -26,7 +26,7 @@ export function GovernanceCenter() {
     </div>
     <div className="mt-6 rounded-2xl border border-purple-400/20 bg-purple-400/5 p-5 text-sm leading-6 text-slate-300">
       Internal governance documents are operating controls, not government approvals or legal opinions. Where law or platform rules require external filing, consent, identity verification, licensed advice, or provider approval, that external step remains controlling.
-      <div className="mt-3"><a className="font-black text-cyan-300" href="/ip-provenance.html">Read IP Provenance & AI Assistance</a> · <a className="font-black text-cyan-300" href="mailto:eve@qslc-hei.com?subject=EVE-1010%20Provenance%20Inquiry">Contact EVE provenance desk</a></div>
+      <div className="mt-3"><a className="font-black text-cyan-300" href="/evidence-center.html">Open Evidence Center</a> · <a className="font-black text-cyan-300" href="/ip-provenance.html">IP Provenance</a> · <a className="font-black text-cyan-300" href="mailto:eve@qslc-hei.com?subject=EVE-1010%20Provenance%20Inquiry">Contact EVE provenance desk</a></div>
     </div>
   </section>
 }
