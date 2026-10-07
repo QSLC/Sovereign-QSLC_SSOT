@@ -1,5 +1,12 @@
 # QSLC EVE Sovereign Command Center
 
+> ## 🚀 EVE-1010 SERIES LIVE
+> Explore the seven-volume EVE-1010 Sovereign Systems series at https://qslc-hei.com/#books  
+> Direct Digital Vault: https://book.stripe.com/28EcN59cFd6x2UW5LH9sk09  
+> PSI verification + risk notice: https://qslc-hei.com/#psi  
+> Product contact: qslc1010@qslc-hei.com
+
+
 **Live production domain:** https://qslc-hei.com  
 **Book storefront:** https://qslc-hei.com/#books  
 **Public book/product contact:** qslc1010@qslc-hei.com
