@@ -44,8 +44,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p dist/.well-known
-          cat > dist/.well-known/qslc-release.json <<EOF
+                    cat > dist/qslc-release.json <<EOF
           {
             "schema": "qslc.release-attestation.v1",
             "repository": "$GITHUB_REPOSITORY",
@@ -60,14 +59,14 @@ jobs:
             "generated_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           }
           EOF
-          find dist -type f ! -path 'dist/.well-known/qslc-release.sha256' -print0 | sort -z | xargs -0 sha256sum > dist/.well-known/qslc-release.sha256
+          find dist -type f ! -path 'dist/qslc-release.sha256' -print0 | sort -z | xargs -0 sha256sum > dist/qslc-release.sha256
       - name: Upload release attestation evidence
         uses: actions/upload-artifact@v4
         with:
           name: qslc-release-attestation-${{ github.sha }}
           path: |
-            dist/.well-known/qslc-release.json
-            dist/.well-known/qslc-release.sha256
+            dist/qslc-release.json
+            dist/qslc-release.sha256
           if-no-files-found: error
           retention-days: 90
       - name: Bundle Privacy Scan
@@ -113,7 +112,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          url="https://qslc.github.io/Sovereign-QSLC_SSOT/.well-known/qslc-release.json"
+          url="https://qslc.github.io/Sovereign-QSLC_SSOT/qslc-release.json"
           body="$(curl -L -sS --fail --max-time 30 "$url")"
           echo "$body" | grep -F "\"commit_sha\": \"$GITHUB_SHA\""
           echo "Release attestation matches deployed commit $GITHUB_SHA"
