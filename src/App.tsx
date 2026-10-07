@@ -1,5 +1,6 @@
 import { Activity, LockKeyhole, Radar, ShieldCheck, Sparkles } from 'lucide-react'
 import { BooksStore } from './public/components/BooksStore'
+import { DailySignal } from './public/components/DailySignal'
 import { EvidenceGateDemo } from './public/components/EvidenceGateDemo'
 import { LearningStudio } from './public/components/LearningStudio'
 import { LivingCalculatorDemo } from './public/components/LivingCalculatorDemo'
@@ -24,6 +25,7 @@ function App() {
 
       <section className="grid gap-4 md:grid-cols-3">{[[ShieldCheck,'Evidence Governance','No Evidence = No Approval is taught as an explicit state flow.'],[Sparkles,'Interactive Learning','Users can explore products, demos, and architecture without exposing private systems.'],[LockKeyhole,'Protected Boundary','Owner/admin operations remain outside the public product surface.']].map(([Icon,title,copy])=>{const I=Icon as typeof ShieldCheck;return <article key={title as string} className="glass-card p-6"><I className="text-cyan-300"/><h2 className="mt-5 text-xl font-black">{title as string}</h2><p className="mt-2 text-sm leading-6 text-slate-400">{copy as string}</p></article>})}</section>
 
+      <DailySignal />
       <PublicStatusPanel />
       <PricingGrid />
       <BooksStore />
