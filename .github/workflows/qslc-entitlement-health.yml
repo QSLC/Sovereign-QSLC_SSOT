@@ -32,6 +32,20 @@ jobs:
           console.log('Entitlement health verified')
           NODE
 
+      - name: Verify signed webhook self-test
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="$(curl -L -sS --fail --max-time 30 https://sovereign-qslc-ssot.pages.dev/api/entitlement/self-test)"
+          echo "$body"
+          BODY="$body" node - <<'NODE'
+          const d = JSON.parse(process.env.BODY)
+          if (d.ok !== true) throw new Error('signed webhook self-test failed')
+          if (d.downstream_status !== 200) throw new Error('webhook did not accept signed event')
+          if (!String(d.downstream_body).includes('"received":true')) throw new Error('webhook response missing received=true')
+          console.log('Signed webhook self-test verified')
+          NODE
+
       - name: Verify invalid session fails closed
         shell: bash
         run: |
