@@ -11,7 +11,9 @@
       "direct_checkout": "https://book.stripe.com/5kQfZh1Kd3vXcvw7TP9sk0a",
       "direct_status": "LIVE",
       "kdp_status": "NOT_VERIFIED_LIVE",
-      "asin": null
+      "asin": null,
+      "fulfillment": "browser_reader",
+      "checkout_session_tracking": true
     },
     {
       "id": "B02",
@@ -20,7 +22,9 @@
       "direct_checkout": "https://book.stripe.com/dRm6oH1KdfeFgLMfmh9sk0b",
       "direct_status": "LIVE",
       "kdp_status": "NOT_VERIFIED_LIVE",
-      "asin": null
+      "asin": null,
+      "fulfillment": "browser_reader",
+      "checkout_session_tracking": true
     },
     {
       "id": "B03",
@@ -29,7 +33,9 @@
       "direct_checkout": "https://book.stripe.com/7sYfZhdsVfeFgLMa1X9sk0c",
       "direct_status": "LIVE",
       "kdp_status": "NOT_VERIFIED_LIVE",
-      "asin": null
+      "asin": null,
+      "fulfillment": "browser_reader",
+      "checkout_session_tracking": true
     },
     {
       "id": "B04",
@@ -38,7 +44,9 @@
       "direct_checkout": "https://book.stripe.com/aFa5kD1KdaYp8fg1vr9sk0d",
       "direct_status": "LIVE",
       "kdp_status": "NOT_VERIFIED_LIVE",
-      "asin": null
+      "asin": null,
+      "fulfillment": "browser_reader",
+      "checkout_session_tracking": true
     },
     {
       "id": "B05",
@@ -47,7 +55,9 @@
       "direct_checkout": "https://book.stripe.com/bJeaEXcoR8Qh534fmh9sk0g",
       "direct_status": "LIVE",
       "kdp_status": "NOT_VERIFIED_LIVE",
-      "asin": null
+      "asin": null,
+      "fulfillment": "browser_reader",
+      "checkout_session_tracking": true
     },
     {
       "id": "B06",
@@ -56,7 +66,9 @@
       "direct_checkout": "https://book.stripe.com/dRmdR9dsV4A19jkeid9sk0e",
       "direct_status": "LIVE",
       "kdp_status": "NOT_VERIFIED_LIVE",
-      "asin": null
+      "asin": null,
+      "fulfillment": "browser_reader",
+      "checkout_session_tracking": true
     },
     {
       "id": "B07",
@@ -65,19 +77,30 @@
       "direct_checkout": "https://book.stripe.com/aFa7sL74x3vXbrsgql9sk0f",
       "direct_status": "LIVE",
       "kdp_status": "NOT_VERIFIED_LIVE",
-      "asin": null
+      "asin": null,
+      "fulfillment": "browser_reader",
+      "checkout_session_tracking": true
     }
   ],
   "bundle": {
     "name": "EVE-1010 Sovereign Systems Digital Vault",
     "price_usd": 59.99,
     "checkout": "https://book.stripe.com/28EcN59cFd6x2UW5LH9sk09",
-    "status": "LIVE"
+    "status": "LIVE",
+    "fulfillment": "browser_reader_vault",
+    "checkout_session_tracking": true
   },
   "rules": [
     "Do not invent ASINs or ISBNs.",
     "Do not mark KDP live before Amazon publication is verified.",
     "AI-generated content disclosure must match the actual content creation process.",
     "Public copies must exclude credentials, banking, payroll, private SSOT, and confidential owner evidence."
-  ]
+  ],
+  "checkout_controls": {
+    "session_id_redirect_tracking": true,
+    "active_direct_sales_count": 9,
+    "active_direct_sales_scope": "7 digital books + Digital Vault + Starter Command Center Template",
+    "unprovisioned_software_payment_links": "DISABLED",
+    "note": "Stripe Checkout Session IDs are appended to fulfilled-product redirects for order-reference traceability. The static reader does not independently revalidate payment."
+  }
 }
