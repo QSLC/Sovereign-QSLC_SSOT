@@ -1,0 +1,38 @@
+name: EVE Daily Public Health
+
+on:
+  schedule:
+    - cron: '23 15 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Check Cloudflare Pages origin
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl -L -sS -o /dev/null -w '%{http_code}' --max-time 30 https://sovereign-qslc-ssot.pages.dev/)"
+          echo "Pages origin HTTP $code"
+          case "$code" in
+            2*|3*) ;;
+            *) echo "::error::Pages origin returned HTTP $code"; exit 1 ;;
+          esac
+
+      - name: Check custom domain
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl -L -sS -o /dev/null -w '%{http_code}' --max-time 30 https://qslc-hei.com/)"
+          echo "Custom domain HTTP $code"
+          case "$code" in
+            2*|3*) exit 0 ;;
+            403) echo "::notice::Cloudflare managed challenge reached; domain is reachable."; exit 0 ;;
+            *) echo "::warning::Custom domain returned HTTP $code"; exit 1 ;;
+          esac
