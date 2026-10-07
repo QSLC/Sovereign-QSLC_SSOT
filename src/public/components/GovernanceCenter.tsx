@@ -1,7 +1,8 @@
-import { BadgeCheck, BookOpenCheck, Building2, Coins, Scale, ShieldCheck } from 'lucide-react'
+import { BadgeCheck, BookOpenCheck, Building2, Coins, Fingerprint, Scale, ShieldCheck } from 'lucide-react'
 
 const rules = [
   [Scale,'Evidence before claims','Public claims must be truthful, supportable, and traceable. Internal QSLC status never substitutes for an external filing, approval, patent, publication, payout, or provider verification.'],
+  [Fingerprint,'IP provenance','QSLC maintains a separate provenance record for human conception, corporate rights, formula lineage, and AI-assisted tooling. EVE-1010 and other AI systems are tools/project identities, not natural-person patent inventors.'],
   [Coins,'PSI separation','PSI is presented separately from QSLC books, software subscriptions, corporate equity, dividends, revenue rights, profit-sharing, lending, and guaranteed returns.'],
   [BookOpenCheck,'Publishing controls','KDP disclosures, IP labels, formula provenance, and patent/trademark language must match verified records and current platform requirements.'],
   [ShieldCheck,'Privacy boundary','Banking, payroll, credentials, private SSOT, owner evidence, private device telemetry, and confidential implementation details remain outside the public site.'],
@@ -25,6 +26,7 @@ export function GovernanceCenter() {
     </div>
     <div className="mt-6 rounded-2xl border border-purple-400/20 bg-purple-400/5 p-5 text-sm leading-6 text-slate-300">
       Internal governance documents are operating controls, not government approvals or legal opinions. Where law or platform rules require external filing, consent, identity verification, licensed advice, or provider approval, that external step remains controlling.
+      <div className="mt-3"><a className="font-black text-cyan-300" href="/ip-provenance.html">Read IP Provenance & AI Assistance</a> · <a className="font-black text-cyan-300" href="mailto:eve@qslc-hei.com?subject=EVE-1010%20Provenance%20Inquiry">Contact EVE provenance desk</a></div>
     </div>
   </section>
 }
