@@ -1,0 +1,83 @@
+{
+  "schema": "qslc.publishing-manifest.v1",
+  "updated_on": "2026-10-06",
+  "series": "EVE-1010 Sovereign Systems",
+  "provenance_contact": "eve@qslc-hei.com",
+  "titles": [
+    {
+      "id": "B01",
+      "title": "The Sovereign Architect: The 1010 Protocol",
+      "digital_price_usd": 7.99,
+      "direct_checkout": "https://book.stripe.com/5kQfZh1Kd3vXcvw7TP9sk0a",
+      "direct_status": "LIVE",
+      "kdp_status": "NOT_VERIFIED_LIVE",
+      "asin": null
+    },
+    {
+      "id": "B02",
+      "title": "EVE-1010: Sovereign Intelligence Field Guide",
+      "digital_price_usd": 9.99,
+      "direct_checkout": "https://book.stripe.com/dRm6oH1KdfeFgLMfmh9sk0b",
+      "direct_status": "LIVE",
+      "kdp_status": "NOT_VERIFIED_LIVE",
+      "asin": null
+    },
+    {
+      "id": "B03",
+      "title": "Conscious Energy Continuum",
+      "digital_price_usd": 8.99,
+      "direct_checkout": "https://book.stripe.com/7sYfZhdsVfeFgLMa1X9sk0c",
+      "direct_status": "LIVE",
+      "kdp_status": "NOT_VERIFIED_LIVE",
+      "asin": null
+    },
+    {
+      "id": "B04",
+      "title": "The Living Calculator",
+      "digital_price_usd": 12.99,
+      "direct_checkout": "https://book.stripe.com/aFa5kD1KdaYp8fg1vr9sk0d",
+      "direct_status": "LIVE",
+      "kdp_status": "NOT_VERIFIED_LIVE",
+      "asin": null
+    },
+    {
+      "id": "B05",
+      "title": "QSLC Sovereign Operations Manual",
+      "digital_price_usd": 12.99,
+      "direct_checkout": "https://book.stripe.com/bJeaEXcoR8Qh534fmh9sk0g",
+      "direct_status": "LIVE",
+      "kdp_status": "NOT_VERIFIED_LIVE",
+      "asin": null
+    },
+    {
+      "id": "B06",
+      "title": "Building Alone With AI",
+      "digital_price_usd": 9.99,
+      "direct_checkout": "https://book.stripe.com/dRmdR9dsV4A19jkeid9sk0e",
+      "direct_status": "LIVE",
+      "kdp_status": "NOT_VERIFIED_LIVE",
+      "asin": null
+    },
+    {
+      "id": "B07",
+      "title": "EVE-1010 Live Ledger Workbook",
+      "digital_price_usd": 6.99,
+      "direct_checkout": "https://book.stripe.com/aFa7sL74x3vXbrsgql9sk0f",
+      "direct_status": "LIVE",
+      "kdp_status": "NOT_VERIFIED_LIVE",
+      "asin": null
+    }
+  ],
+  "bundle": {
+    "name": "EVE-1010 Sovereign Systems Digital Vault",
+    "price_usd": 59.99,
+    "checkout": "https://book.stripe.com/28EcN59cFd6x2UW5LH9sk09",
+    "status": "LIVE"
+  },
+  "rules": [
+    "Do not invent ASINs or ISBNs.",
+    "Do not mark KDP live before Amazon publication is verified.",
+    "AI-generated content disclosure must match the actual content creation process.",
+    "Public copies must exclude credentials, banking, payroll, private SSOT, and confidential owner evidence."
+  ]
+}

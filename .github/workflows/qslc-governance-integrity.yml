@@ -1,0 +1,52 @@
+name: EVE Governance Integrity Suite
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/formula-provenance.json'
+      - 'public/publishing-manifest.json'
+      - 'docs/FORMULA-PROVENANCE-REGISTRY.md'
+      - 'docs/IP-ASSIGNMENT-RECORD-TEMPLATE.md'
+      - 'docs/PRODUCTION-INCIDENT-ROLLBACK.md'
+      - 'docs/INVENTION-LEDGER.json'
+      - '.github/workflows/qslc-governance-integrity.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate JSON governance records
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('public/formula-provenance.json','utf8')); JSON.parse(require('fs').readFileSync('public/publishing-manifest.json','utf8')); JSON.parse(require('fs').readFileSync('docs/INVENTION-LEDGER.json','utf8')); console.log('Governance JSON valid')"
+      - name: Enforce formula classification controls
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const d=JSON.parse(fs.readFileSync('public/formula-provenance.json','utf8'));
+          if (!Array.isArray(d.formulas) || d.formulas.length !== 18) throw new Error('Expected exactly 18 corrected formulas');
+          const f7=d.formulas.find(x=>x.id==='F-07');
+          if (!f7 || f7.expression !== null || f7.classification !== 'INCOMPLETE_DEFINITION') throw new Error('F-07 must remain explicitly incomplete until evidence supplies an equation');
+          if (d.formulas.some(x=>/patent pending/i.test(JSON.stringify(x)))) throw new Error('Unverified patent-pending claim detected');
+          console.log('Formula governance controls verified');
+          NODE
+      - name: Validate publishing controls
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const d=JSON.parse(fs.readFileSync('public/publishing-manifest.json','utf8'));
+          if (d.titles.length !== 7) throw new Error('Expected seven publishing titles');
+          for (const t of d.titles) { if (t.kdp_status === 'LIVE' && !t.asin) throw new Error('KDP LIVE requires ASIN evidence'); }
+          console.log('Publishing controls verified');
+          NODE

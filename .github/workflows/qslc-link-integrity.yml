@@ -1,0 +1,37 @@
+name: EVE Link Integrity
+
+on:
+  schedule:
+    - cron: '41 15 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify canonical public resources on Pages origin
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://sovereign-qslc-ssot.pages.dev'
+          for path in / /terms.html /privacy.html /refunds.html /digital-asset-notice.html /ip-provenance.html /formula-provenance.json /publishing-manifest.json; do
+            code="$(curl -L -sS -o /dev/null -w '%{http_code}' --max-time 30 "$base$path")"
+            echo "$path => $code"
+            case "$code" in 2*|3*) ;; *) echo "::error::$path returned HTTP $code"; exit 1;; esac
+          done
+      - name: Check checkout URLs without treating anti-bot response as purchase failure
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const d=JSON.parse(fs.readFileSync('public/publishing-manifest.json','utf8'));
+          const urls=[...d.titles.map(x=>x.direct_checkout),d.bundle.checkout];
+          if (urls.some(u=>!/^https:\/\/(book|buy)\.stripe\.com\//.test(u))) throw new Error('Unexpected checkout host');
+          console.log('Checkout URL host validation passed for', urls.length, 'links');
+          NODE
