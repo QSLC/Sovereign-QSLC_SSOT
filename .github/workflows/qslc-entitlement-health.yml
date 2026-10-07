@@ -22,7 +22,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          body="$(curl -L -sS --fail --max-time 30 https://qslc-hei.com/api/entitlement/health)"
+          body="$(curl -L -sS --fail --max-time 30 https://sovereign-qslc-ssot.pages.dev/api/entitlement/health)"
           echo "$body"
           BODY="$body" node - <<'NODE'
           const d = JSON.parse(process.env.BODY)
@@ -36,7 +36,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          code="$(curl -L -sS -o /tmp/verify.json -w '%{http_code}' --max-time 30 'https://qslc-hei.com/api/entitlement/verify?session_id=invalid&product=book-01')"
+          code="$(curl -L -sS -o /tmp/verify.json -w '%{http_code}' --max-time 30 'https://sovereign-qslc-ssot.pages.dev/api/entitlement/verify?session_id=invalid&product=book-01')"
           cat /tmp/verify.json
           test "$code" = "400"
           grep -q 'missing_or_invalid_session' /tmp/verify.json
