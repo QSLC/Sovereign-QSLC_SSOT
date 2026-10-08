@@ -8,6 +8,7 @@ const rules = [
   [ShieldCheck,'Privacy boundary','Banking, payroll, credentials, private SSOT, owner evidence, private device telemetry, and confidential implementation details remain outside the public site.'],
   [Building2,'Corporate governance','QSLC may adopt internal operating rules, product standards, approval gates, records, and controls, but those internal rules do not override law, contracts, platform terms, or regulator requirements.'],
   [BadgeCheck,'Automation boundary','Automation may execute low-risk pre-approved actions where provider permissions allow it, but must stop for consent, signatures, identity verification, conflicting evidence, or unsupported public claims.'],
+  [ShieldCheck,'Provider independence','QSLC code, SSOT state, governance rules, prompts/configuration, exports, and recovery controls must remain usable outside any single AI chat, model provider, or connector. This is resilience, not a bypass of MFA, provider security, contracts, or lawful restrictions.'],
 ] as const
 
 export function GovernanceCenter() {
