@@ -6,6 +6,7 @@ import { LearningStudio } from './public/components/LearningStudio'
 import { GovernanceCenter } from './public/components/GovernanceCenter'
 import { HiringCenter } from './public/components/HiringCenter'
 import { LivingCalculatorDemo } from './public/components/LivingCalculatorDemo'
+import { MeetingCenter } from './public/components/MeetingCenter'
 import { PricingGrid } from './public/components/PricingGrid'
 import { PsiQuickLink } from './public/components/PsiQuickLink'
 import { PublicStatusPanel } from './public/components/PublicStatusPanel'
@@ -17,7 +18,7 @@ function App() {
     <div className="relative mx-auto max-w-7xl px-4 py-5 sm:px-6 md:px-10">
       <nav className="sticky top-3 z-30 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-400/20 bg-slate-950/80 px-4 py-3 backdrop-blur-xl">
         <div><p className="font-black tracking-[.2em] text-lime-300">QSLC EVE</p><p className="text-[11px] text-slate-500">Sovereign Command Center</p></div>
-        <div className="flex flex-wrap gap-2 text-xs font-bold"><a href="#status" className="nav-chip">Status</a><a href="#pricing" className="nav-chip">Pricing</a><a href="#calculator" className="nav-chip">Calculator</a><a href="#topology" className="nav-chip">Star Map</a><a href="#learning" className="nav-chip">Learn</a><a href="#books" className="nav-chip">Books</a><a href="#psi" className="nav-chip">PSI</a><a href="#governance" className="nav-chip">Governance</a><a href="#hiring" className="nav-chip">Hiring</a></div>
+        <div className="flex flex-wrap gap-2 text-xs font-bold"><a href="#status" className="nav-chip">Status</a><a href="#pricing" className="nav-chip">Pricing</a><a href="#calculator" className="nav-chip">Calculator</a><a href="#topology" className="nav-chip">Star Map</a><a href="#learning" className="nav-chip">Learn</a><a href="#books" className="nav-chip">Books</a><a href="#meeting" className="nav-chip">Meeting</a><a href="#psi" className="nav-chip">PSI</a><a href="#governance" className="nav-chip">Governance</a><a href="#hiring" className="nav-chip">Hiring</a></div>
       </nav>
 
       <section className="grid items-center gap-10 py-14 lg:grid-cols-[1.05fr_.95fr] lg:py-20">
@@ -31,6 +32,7 @@ function App() {
       <PublicStatusPanel />
       <PricingGrid />
       <BooksStore />
+      <MeetingCenter />
       <PsiQuickLink />
       <GovernanceCenter />
       <LivingCalculatorDemo />
