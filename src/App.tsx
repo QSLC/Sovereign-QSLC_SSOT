@@ -4,6 +4,7 @@ import { DailySignal } from './public/components/DailySignal'
 import { EvidenceGateDemo } from './public/components/EvidenceGateDemo'
 import { LearningStudio } from './public/components/LearningStudio'
 import { GovernanceCenter } from './public/components/GovernanceCenter'
+import { HiringCenter } from './public/components/HiringCenter'
 import { LivingCalculatorDemo } from './public/components/LivingCalculatorDemo'
 import { PricingGrid } from './public/components/PricingGrid'
 import { PsiQuickLink } from './public/components/PsiQuickLink'
@@ -16,7 +17,7 @@ function App() {
     <div className="relative mx-auto max-w-7xl px-4 py-5 sm:px-6 md:px-10">
       <nav className="sticky top-3 z-30 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-400/20 bg-slate-950/80 px-4 py-3 backdrop-blur-xl">
         <div><p className="font-black tracking-[.2em] text-lime-300">QSLC EVE</p><p className="text-[11px] text-slate-500">Sovereign Command Center</p></div>
-        <div className="flex flex-wrap gap-2 text-xs font-bold"><a href="#status" className="nav-chip">Status</a><a href="#pricing" className="nav-chip">Pricing</a><a href="#calculator" className="nav-chip">Calculator</a><a href="#topology" className="nav-chip">Star Map</a><a href="#learning" className="nav-chip">Learn</a><a href="#books" className="nav-chip">Books</a><a href="#psi" className="nav-chip">PSI</a><a href="#governance" className="nav-chip">Governance</a></div>
+        <div className="flex flex-wrap gap-2 text-xs font-bold"><a href="#status" className="nav-chip">Status</a><a href="#pricing" className="nav-chip">Pricing</a><a href="#calculator" className="nav-chip">Calculator</a><a href="#topology" className="nav-chip">Star Map</a><a href="#learning" className="nav-chip">Learn</a><a href="#books" className="nav-chip">Books</a><a href="#psi" className="nav-chip">PSI</a><a href="#governance" className="nav-chip">Governance</a><a href="#hiring" className="nav-chip">Hiring</a></div>
       </nav>
 
       <section className="grid items-center gap-10 py-14 lg:grid-cols-[1.05fr_.95fr] lg:py-20">
@@ -36,6 +37,7 @@ function App() {
       <EvidenceGateDemo />
       <SystemStarMap />
       <LearningStudio />
+      <HiringCenter />
 
       <footer className="mt-10 border-t border-slate-800 py-8 text-xs leading-6 text-slate-500">Quantum Sovereign Logistics Corp • qslc-hei.com • Books & product contact: qslc1010@qslc-hei.com • <a href="/terms.html" className="text-cyan-300">Terms</a> • <a href="/privacy.html" className="text-cyan-300">Privacy</a> • <a href="/refunds.html" className="text-cyan-300">Refunds</a> • <a href="/digital-asset-notice.html" className="text-cyan-300">Digital Asset Notice</a> • Public QSLC EVE capability gateway • Synthetic demonstrations are not financial, payroll, banking, or private SSOT records.</footer>
     </div>

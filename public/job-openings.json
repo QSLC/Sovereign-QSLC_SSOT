@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-10-08",
+  "authority": "QSLC hiring control — public sanitized view",
+  "note": "Statuses are planning/onboarding indicators, not offers of employment.",
+  "roles": [
+    {
+      "id": "ADMIN-OPS-01",
+      "title": "Administrative Operations Coordinator",
+      "status": "onboarding",
+      "lane": "Admin, meetings, records, SSOT support"
+    },
+    {
+      "id": "PAYROLL-COMP-01",
+      "title": "CPA / Payroll / Compliance Support",
+      "status": "priority",
+      "lane": "Payroll, compliance, classification, funding controls"
+    },
+    {
+      "id": "TECH-LEAD-01",
+      "title": "Senior Full-Stack / Technical Lead",
+      "status": "planned",
+      "lane": "Production, integrations, application reliability"
+    },
+    {
+      "id": "DATA-AUTO-01",
+      "title": "Data & Automation Engineer",
+      "status": "planned",
+      "lane": "APIs, source-gated automation, SSOT"
+    },
+    {
+      "id": "BIZDEV-01",
+      "title": "Business Development Lead",
+      "status": "future",
+      "lane": "Pilot sales, partnerships, pipeline"
+    }
+  ]
+}
