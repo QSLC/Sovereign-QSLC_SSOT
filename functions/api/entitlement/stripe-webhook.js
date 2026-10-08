@@ -1,3 +1,4 @@
+import { recordEvent } from '../../_lib/calculator.js'
 const PRODUCT_BY_LINK = {
   'plink_1UNipIGx1CvHyKS26Sm9X2vZ': 'book-01',
   'plink_1UNipNGx1CvHyKS2qbVJf1ym': 'book-02',
@@ -24,6 +25,8 @@ export async function onRequestPost({ request, env }) {
   } catch {
     return json({ ok: false, error: 'invalid_json' }, 400)
   }
+
+  if (env.CALCULATOR_DB) await recordEvent(env.CALCULATOR_DB, event)
 
   if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
     const session = event.data?.object || {}

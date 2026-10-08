@@ -1,3 +1,4 @@
+import { CalculatorWorkspace } from './public/components/CalculatorWorkspace'
 import { Activity, LockKeyhole, Radar, ShieldCheck, Sparkles } from 'lucide-react'
 import { BooksStore } from './public/components/BooksStore'
 import { DailySignal } from './public/components/DailySignal'
@@ -38,6 +39,7 @@ function App() {
       <PsiQuickLink />
       <GovernanceCenter />
       <LivingCalculatorDemo />
+      <CalculatorWorkspace />
       <EvidenceGateDemo />
       <SystemStarMap />
       <LearningStudio />

@@ -38,6 +38,8 @@ jobs:
         run: npm run contract:validate
       - name: Deployment Health Unit Tests
         run: npm run deploy:test
+      - name: Calculator access and math tests
+        run: npm run calculator:test
       - name: Source Privacy Scan
         run: npm run privacy:scan
       - name: Lint

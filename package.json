@@ -16,7 +16,8 @@
     "deploy:check": "node scripts/check-deployment.mjs",
     "privacy:test": "node scripts/privacy-scan.test.mjs",
     "privacy:scan": "node scripts/privacy-scan.mjs .",
-    "privacy:scan:dist": "node scripts/privacy-scan.mjs dist"
+    "privacy:scan:dist": "node scripts/privacy-scan.mjs dist",
+    "calculator:test": "node --test scripts/calculator.test.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.562.0",
