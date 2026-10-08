@@ -16,8 +16,16 @@ Tests cover signed webhook → access → saved result → tenant-isolated histo
 
 The connected QSLC live account returned zero completed Checkout Sessions and zero subscriptions on 2026-10-08. No real paid activation test was performed; local fixtures are not live-sale evidence.
 
-Cross-device identity/recovery, billing self-service, verified external SSOT/SharePoint synchronization, broader reporting/alerts, refund/dispute reconciliation and external-source scheduling remain incomplete. Calculator access is an implemented subset of the existing SaaS offer. Do not describe full tiers as completely provisioned.
+Cross-device identity/recovery, verified external SSOT/SharePoint synchronization, broader reporting/alerts, refund/dispute reconciliation and external-source scheduling remain incomplete. Calculator access is an implemented subset of the existing SaaS offer. Do not describe full tiers as completely provisioned.
 
 Access currently stays in the checkout browser for 30 days. No email-verification service is configured for recovery. Numbers are entered by the customer. Source labels are not evidence verification.
 
 Apply migrations/0001_calculator.sql to CALCULATOR_DB and bind the production Pages environment. Never bind previews to production customer data.
+
+## Verified billing and source discovery
+
+Stripe hosted customer portal enabled: invoice history, payment-method updates and cancellation at the end of the paid period. Login URL: https://billing.stripe.com/p/login/eVq9AT9cFc2t7bcfmh9sk00
+
+SharePoint source site resolved as All Company; the older QSLCCommand path returned 404. Master workbooks are present. Continuous synchronization still requires server-side Graph authorization and a verified field mapping; no private data was published.
+
+Cloudflare production deployment succeeded. Live checks: entitlement health returns ready storage; anonymous calculator requests return 401; forged order claims return 409; unsigned webhook requests return 400. Built browser assets contain the workspace. GitHub CI and both publishing workflows passed after sequencing the legacy publisher before the validated artifact. A genuine paid customer transaction remains unverified.

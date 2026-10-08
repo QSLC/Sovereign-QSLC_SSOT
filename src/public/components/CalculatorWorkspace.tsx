@@ -70,6 +70,7 @@ export function CalculatorWorkspace() {
     link.href=url;link.download='eve-calculation-history.json';link.click();URL.revokeObjectURL(url)
   }
   return <section id="workspace" className="section-shell"><div className="section-heading"><span className="eyebrow">PRIVATE CALCULATOR WORKSPACE</span><h2>Your inputs. Saved calculations.</h2><p role="status">{status}</p></div>
+    <a className="secondary-cta mt-5 inline-block" href="https://billing.stripe.com/p/login/eVq9AT9cFc2t7bcfmh9sk00" target="_blank" rel="noreferrer">Manage billing / cancel subscription</a>
     {!tier?<a className="secondary-cta mt-5 inline-block" href="https://qslc-hei.com/#workspace">Open secure workspace</a>:<div className="glass-card mt-6 space-y-5 p-6">
       <p>Purchased tier: <strong>{tier}</strong>. USD calculations use operational formulas v1.0.0. Estimated time value is a scenario, not realized savings.</p>
       <label className="block">Source / reporting period<input className="block w-full rounded bg-slate-900 p-3" value={source} maxLength={120} onChange={e=>{setSource(e.target.value);setChanged(true)}} placeholder="Example: customer timesheet, October 2026"/></label>
