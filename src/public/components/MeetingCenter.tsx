@@ -4,14 +4,15 @@ const workMailbox = 'sovereign@quantumsovereignlogisticsco.onmicrosoft.com'
 
 export function MeetingCenter() {
   const meetingHref = `mailto:${workMailbox}?subject=${encodeURIComponent('QSLC EVE one-on-one / demo request')}&body=${encodeURIComponent('Name:\nCompany:\nRequested date/time and time zone:\nProduct/tier:\nObjective:\n')}`
+  const quickHref = `mailto:${workMailbox}?subject=${encodeURIComponent("QSLC EVE quick meeting / Kayden coordination")}&body=${encodeURIComponent("Requester name:\nAttendee email(s):\nPreferred date/time and time zone:\nAgenda:\n")}`
   const questionHref = `mailto:${workMailbox}?subject=${encodeURIComponent('QSLC EVE product question')}&body=${encodeURIComponent('Name:\nCompany:\nProduct/tier (if known):\nQuestion:\n')}`
   return <section id="meeting" className="section-shell">
     <div className="section-heading">
       <span className="eyebrow">MEETINGS & QUESTIONS</span>
       <h2>Talk to QSLC without exposing private systems.</h2>
-      <p>Meeting requests and product questions go to the monitored QSLC work mailbox. QSLC reviews content and recipient details before a calendar invitation is created.</p>
+      <p>Meeting requests and product questions open a pre-addressed message to the QSLC work mailbox. Email delivery and agent monitoring are not guaranteed by this button; a calendar invitation is created only after confirmation.</p>
     </div>
-    <div className="mt-8 grid gap-4 md:grid-cols-2">
+    <div className="mt-5 flex flex-wrap gap-3"><a href={quickHref} className="primary-cta">Quick meeting request · Kayden / team</a><a href="#calculator" className="secondary-cta">Open Living Calculator demo</a></div><div className="mt-8 grid gap-4 md:grid-cols-2">
       <article className="glass-card p-6">
         <CalendarDays className="text-lime-300"/>
         <h3 className="mt-4 text-xl font-black">Request a one-on-one</h3>
