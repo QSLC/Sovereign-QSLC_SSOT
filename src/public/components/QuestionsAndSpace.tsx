@@ -19,6 +19,16 @@ export function QuestionsAndSpace() {
       <label htmlFor="eve-question" className="mt-6 block text-sm font-bold text-cyan-200">Your question</label>
       <input id="eve-question" type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search EVE, PSI, formulas, space or payments" className="mt-2 w-full rounded-xl border border-cyan-300/30 bg-slate-900 p-4 text-white outline-none focus:border-lime-300" />
       <div className="mt-5 grid gap-3">{matching.length ? matching.map(([q,a])=><article key={q} className="rounded-xl border border-slate-700 bg-slate-900/80 p-5"><h3 className="font-bold text-lime-300">{q}</h3><p className="mt-2 text-sm leading-6 text-slate-300">{a}</p></article>) : <p className="text-sm text-slate-300">No published answer matches yet. Contact QSLC using the address in the footer.</p>}</div>
+      <div className="mt-8 rounded-2xl border border-lime-300/30 bg-slate-900/80 p-5">
+        <h3 className="text-xl font-black text-lime-300">Traceable demonstration data</h3>
+        <p className="mt-2 text-sm leading-6 text-slate-300">Source: <a className="text-cyan-300 underline" href="/public-metrics.json">QSLC public metrics JSON</a>. The source explicitly marks all three values as synthetic; they are not observations of space, financial assets, or production throughput. An index of 92 is not a measured 92%.</p>
+        <dl className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-xl border border-slate-700 p-4"><dt className="text-xs text-slate-400">Automation throughput</dt><dd className="text-2xl font-black text-cyan-300">92 <span className="text-xs">index</span></dd></div>
+          <div className="rounded-xl border border-slate-700 p-4"><dt className="text-xs text-slate-400">Evidence coverage</dt><dd className="text-2xl font-black text-cyan-300">88 <span className="text-xs">%</span></dd></div>
+          <div className="rounded-xl border border-slate-700 p-4"><dt className="text-xs text-slate-400">Public product nodes</dt><dd className="text-2xl font-black text-cyan-300">5 <span className="text-xs">nodes</span></dd></div>
+        </dl>
+        <p className="mt-3 text-xs text-slate-400">Illustration variables: radial center (percentage of canvas), gradient color stops (hexadecimal RGB), and radius (percentage of canvas). These parameters generate the artwork; they are not astrophysical measurements.</p>
+      </div>
       <div id="space-concepts" className="mt-10">
         <h3 className="text-2xl font-black text-white">EVE conceptual space gallery</h3>
         <p className="mt-2 text-sm text-slate-300">Original CSS-rendered illustrations. Artistic concepts only: not NASA imagery, real-time spacecraft telemetry, or scientific observations.</p>
