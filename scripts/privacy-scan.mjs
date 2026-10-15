@@ -11,6 +11,7 @@ const ignoredFiles = new Set(['package-lock.json', 'privacy-allowlist.json'])
 const textExt = new Set(['.ts', '.tsx', '.js', '.mjs', '.json', '.md', '.html', '.css', '.yml', '.yaml', '.txt'])
 
 const rules = [
+  { id: 'SOCIAL_SECURITY_NUMBER', re: /\b\d{3}[- ]\d{2}[- ]\d{4}\b|\b(?:ssn|social[ _-]?security(?:[ _-]?(?:number|no))?)\s*["']?\s*[:=#]\s*["']?\d{9}\b/gi },
   { id: 'BANK_ACCOUNT_NUMBER', re: /\b(?:account|acct|routing)\s*(?:number|#|no\.?|:)\s*\d{6,17}\b/gi },
   { id: 'ROUTING_NUMBER', re: /\b(?:routing|aba)\s*(?:number|#|no\.?|:)\s*\d{9}\b/gi },
   { id: 'SECRET_TOKEN', re: /\b(?:api[_ -]?key|secret|token|password)\s*[:=]\s*["']?[A-Za-z0-9_-]{16,}/gi },
@@ -64,7 +65,7 @@ export function scanPaths(paths) {
 
 const findings = scanPaths([target])
 if (findings.length) {
-  for (const f of findings) console.error(`${f.file}:${f.line} [${f.rule}] ${f.sample}`)
+  for (const f of findings) console.error(`${f.file}:${f.line} [${f.rule}] [REDACTED]`)
   console.error(`Privacy scan failed: ${findings.length} finding(s).`)
   process.exit(1)
 }

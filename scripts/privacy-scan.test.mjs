@@ -27,4 +27,15 @@ if (safe.status !== 0) {
   process.exit(1)
 }
 
+for (const [name, content] of [
+  ['ssn-hyphens', ['123', '45', '6789'].join('-')],
+  ['ssn-spaces', ['123', '45', '6789'].join(' ')],
+  ['ssn-labelled', `social_security_number: ${['123', '45', '6789'].join('')}`],
+]) {
+  const result = runFixture(name, content)
+  if (result.status === 0 || !result.stderr.includes('SOCIAL_SECURITY_NUMBER')) {
+    throw new Error(`Expected ${name} to fail with a Social Security finding`)
+  }
+  if (result.stderr.includes(content)) throw new Error('Scanner leaked sensitive fixture in logs')
+}
 console.log('Privacy scanner regression tests passed')
