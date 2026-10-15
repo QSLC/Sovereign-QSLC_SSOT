@@ -15,6 +15,7 @@ import { SystemStarMap } from './public/components/SystemStarMap'
 import { VisualGallery } from './public/components/VisualGallery'
 import { QuestionsAndSpace } from './public/components/QuestionsAndSpace'
 import { EveCommandExperience } from './public/components/EveCommandExperience'
+import { SpaceMissionWall } from './public/components/SpaceMissionWall'
 
 function App() {
   return <main className="min-h-screen overflow-hidden bg-[#030611] text-slate-100">
@@ -22,7 +23,7 @@ function App() {
     <div className="relative mx-auto max-w-7xl px-4 py-5 sm:px-6 md:px-10">
       <nav className="sticky top-3 z-30 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-400/20 bg-slate-950/80 px-4 py-3 backdrop-blur-xl">
         <div><p className="font-black tracking-[.2em] text-lime-300">QSLC EVE</p><p className="text-[11px] text-slate-500">Sovereign Command Center</p></div>
-        <div className="flex flex-wrap gap-2 text-xs font-bold"><a href="#status" className="nav-chip">Status</a><a href="#pricing" className="nav-chip">Pricing</a><a href="#calculator" className="nav-chip">Calculator</a><a href="#topology" className="nav-chip">Star Map</a><a href="#learning" className="nav-chip">Learn</a><a href="#books" className="nav-chip">Books</a><a href="#gallery" className="nav-chip">Gallery</a><a href="#questions" className="nav-chip">Questions & Space</a><a href="#command" className="nav-chip">EVE Command</a><a href="#newsletter" className="nav-chip">Newsletter</a><a href="#meeting" className="nav-chip">Meeting</a><a href="#psi" className="nav-chip">PSI</a><a href="#governance" className="nav-chip">Governance</a><a href="#hiring" className="nav-chip">Hiring</a><a href="https://admin.qslc-hei.com/" className="nav-chip">Owner sign-in</a></div>
+        <div className="flex flex-wrap gap-2 text-xs font-bold"><a href="#status" className="nav-chip">Status</a><a href="#pricing" className="nav-chip">Pricing</a><a href="#calculator" className="nav-chip">Calculator</a><a href="#topology" className="nav-chip">Star Map</a><a href="#learning" className="nav-chip">Learn</a><a href="#books" className="nav-chip">Books</a><a href="#gallery" className="nav-chip">Gallery</a><a href="#mission-wall" className="nav-chip">Live Sources</a><a href="#questions" className="nav-chip">Questions & Space</a><a href="#command" className="nav-chip">EVE Command</a><a href="#newsletter" className="nav-chip">Newsletter</a><a href="#meeting" className="nav-chip">Meeting</a><a href="#psi" className="nav-chip">PSI</a><a href="#governance" className="nav-chip">Governance</a><a href="#hiring" className="nav-chip">Hiring</a><a href="https://admin.qslc-hei.com/" className="nav-chip">Owner sign-in</a></div>
       </nav>
 
       <section className="grid items-center gap-10 py-14 lg:grid-cols-[1.05fr_.95fr] lg:py-20">
@@ -37,6 +38,7 @@ function App() {
       <PricingGrid />
       <BooksStore />
       <VisualGallery />
+      <SpaceMissionWall />
       <QuestionsAndSpace />
       <EveCommandExperience />
       <MeetingCenter />
