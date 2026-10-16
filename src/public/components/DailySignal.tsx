@@ -7,7 +7,7 @@ const daily = [
   ['Evidence First','No Evidence = No Approval. See how QSLC turns that rule into a visible operating state.','#evidence'],
   ['Sovereign Operations','From logistics to publishing: separate public demos, private records, and owner-only actions before you scale.','#pricing'],
   ['PSI Verification','Verify the contract, understand the platform mechanics, and separate an experimental digital asset from guaranteed financial outcomes.','#psi'],
-  ['Digital Vault','Seven EVE-1010 volumes + Live Ledger companion resources. Start with the founder story, then follow the system deeper.','#books'],
+  ['Digital Vault','Six revised Sovereign Series volumes. Explore the covers, chapter outlines, samples, and publishing tracker.','#books'],
 ] as const
 
 function holidayStamp(d: Date) {

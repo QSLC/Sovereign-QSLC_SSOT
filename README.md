@@ -1,7 +1,7 @@
 # QSLC EVE Sovereign Command Center
 
-> ## 🚀 EVE-1010 SERIES LIVE
-> Explore the seven-volume EVE-1010 Sovereign Systems series at https://qslc-hei.com/#books  
+> ## THE SOVEREIGN SERIES — REVISED DRAFT EDITION
+> Explore the six-volume Sovereign Series at https://qslc-hei.com/#books  
 > Direct Digital Vault: https://book.stripe.com/28EcN59cFd6x2UW5LH9sk09  
 > PSI verification + risk notice: https://qslc-hei.com/#psi  
 > Product contact: qslc1010@qslc-hei.com
@@ -51,6 +51,6 @@ QSLC original product code, governance flows, formulas, content, and design arti
 
 ## EVE-1010 Publishing Line
 
-The public site includes the seven-volume **EVE-1010 Sovereign Systems** series and the direct **Digital Vault** bundle. The direct bundle checkout is handled by the QSLC Stripe account; Amazon/KDP editions are listed on the site only after their public Amazon pages are live.
+The public site presents six revised **Sovereign Series** manuscript drafts, cover images, sample pages, measured metadata, and a KDP bookshelf tracker. Earlier book and bundle purchase links are removed pending verification of matching products and fulfillment. Amazon/KDP publication is not verified.
 
 Public publishing must preserve the same boundary as the application: no bank details, payroll/check information, credentials, owner-only evidence, confidential SSOT content, or unpublished trade-secret implementation details.
