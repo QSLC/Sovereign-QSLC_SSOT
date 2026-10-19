@@ -19,6 +19,14 @@ export function VisualGallery() {
     <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {scenes.map(([Icon,title,copy],index) => <article key={title} className="glass-card relative min-h-[250px] overflow-hidden p-6">
         <div className="pointer-events-none absolute inset-0 opacity-70" style={{background:`radial-gradient(circle at ${20+(index%3)*22}% 25%, rgba(34,211,238,.28), transparent 30%), radial-gradient(circle at 80% 70%, rgba(168,85,247,.24), transparent 34%), linear-gradient(145deg, rgba(2,6,23,.4), rgba(15,23,42,.88))`}}/>
+        <svg viewBox="0 0 360 180" role="img" aria-label={`${title} architecture illustration`} className="relative z-10 mb-6 w-full rounded-xl border border-cyan-300/20 bg-slate-950">
+          <defs><linearGradient id={`scene-${index}`}><stop stopColor="#22d3ee"/><stop offset="1" stopColor="#a855f7"/></linearGradient></defs>
+          {[0,1,2].map(n => <g key={n}><path d={`M 72 ${40+n*50} Q 150 ${40+n*50} 208 90`} fill="none" stroke={`url(#scene-${index})`} strokeWidth="3"/><rect x="20" y={24+n*50} width="82" height="32" rx="8" fill="#172554" stroke="#22d3ee"/><text x="61" y={44+n*50} textAnchor="middle" fill="#e0f2fe" fontSize="11">{['INPUT','VALIDATE','EVIDENCE'][n]}</text></g>)}
+          <circle cx="244" cy="90" r="40" fill="#3b0764" stroke="#bef264" strokeWidth="3"/>
+          <circle cx="244" cy="90" r="29" fill="none" stroke="#c084fc" strokeWidth="2"/>
+          <text x="244" y="95" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">{['EVE','SSOT','FLOW','STUDIO','PSI','CEO'][index]}</text>
+          <path d="M 286 90 H 329" stroke="#bef264" strokeWidth="3"/><circle cx="332" cy="90" r="7" fill="#bef264"/>
+        </svg>
         <div className="relative z-10 flex h-full min-h-[200px] flex-col">
           <Icon size={30} className="text-cyan-300"/>
           <div className="mt-auto">
