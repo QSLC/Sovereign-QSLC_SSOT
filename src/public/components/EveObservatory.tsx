@@ -26,7 +26,7 @@ const OBSERVATORIES: Observatory[] = [
 const stars = Array.from({ length: 155 }, (_, i) => {
   const a = (i * 73.27 + 19.1) % 100
   const b = (i * 47.71 + 8.3) % 100
-  return { x: a, y: b, r: i % 11 === 0 ? 1.4 : i % 5 === 0 ? 0.85 : 0.4, opacity: i % 7 === 0 ? 0.95 : 0.38 + (i % 4) * 0.11 }
+  return { id: `star-${i}`, x: a, y: b, r: i % 11 === 0 ? 1.4 : i % 5 === 0 ? 0.85 : 0.4, opacity: i % 7 === 0 ? 0.95 : 0.38 + (i % 4) * 0.11 }
 })
 
 export function EveObservatory() {
@@ -49,7 +49,7 @@ export function EveObservatory() {
         <div className="relative min-h-[390px] overflow-hidden bg-[radial-gradient(ellipse_at_35%_45%,#1d4ed84a,transparent_42%),radial-gradient(ellipse_at_72%_32%,#9333ea44,transparent_40%),radial-gradient(ellipse_at_50%_100%,#0e749066,transparent_50%),linear-gradient(135deg,#030617,#08051b_65%,#02040c)] sm:min-h-[530px]">
           <svg viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
             <defs><radialGradient id="eve-planet"><stop stopColor="#99f6e4"/><stop offset=".3" stopColor="#2563eb"/><stop offset=".7" stopColor="#312e81"/><stop offset="1" stopColor="#050816"/></radialGradient><radialGradient id="eve-halo"><stop stopColor="#22d3ee" stopOpacity=".26"/><stop offset="1" stopColor="#22d3ee" stopOpacity="0"/></radialGradient></defs>
-            {stars.map((star, index) => <circle key={index} cx={star.x * 10} cy={star.y * 7} r={star.r} fill="#e0f2fe" opacity={star.opacity}/>)}
+            {stars.map(star => <circle key={star.id} cx={star.x * 10} cy={star.y * 7} r={star.r} fill="#e0f2fe" opacity={star.opacity}/>)}
             <ellipse cx="505" cy="365" rx="310" ry="265" fill="url(#eve-halo)"/>
             <circle cx="505" cy="365" r="154" fill="url(#eve-planet)" opacity=".95"/>
             <circle cx="505" cy="365" r="184" fill="none" stroke="#67e8f9" strokeOpacity=".27" strokeDasharray="4 12"/>
