@@ -5,11 +5,16 @@
   --color-qslc-purple: #C084FC;
   --color-qslc-cyan: #67E8F9;
   --color-qslc-void: #030611;
+  --font-sans: "Aptos", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
+  --font-mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
 }
 
 @layer base {
   html { scroll-behavior: smooth; }
   body { @apply bg-[#030611] text-slate-100 antialiased; }
+  h1, h2, h3 { font-family: var(--font-display); }
+  code, pre, time { font-family: var(--font-mono); }
   *:focus-visible { outline: 2px solid #bef264; outline-offset: 3px; }
 }
 
