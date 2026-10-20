@@ -1,10 +1,10 @@
 name: MP-33 private SSOT checks
 on:
   pull_request:
-    paths: ['services/ssot/**', 'workers/qslc-admin-edge.mjs', 'scripts/admin-worker.test.mjs', '.github/workflows/mp33-ssot.yml']
+    paths: ['services/ssot/**', 'workers/qslc-admin-edge.mjs', 'scripts/admin-worker.test.mjs', 'migrations/**', '.github/workflows/mp33-ssot.yml']
   push:
     branches: [main]
-    paths: ['services/ssot/**', 'workers/qslc-admin-edge.mjs', 'scripts/admin-worker.test.mjs', '.github/workflows/mp33-ssot.yml']
+    paths: ['services/ssot/**', 'workers/qslc-admin-edge.mjs', 'scripts/admin-worker.test.mjs', 'migrations/**', '.github/workflows/mp33-ssot.yml']
 permissions:
   contents: read
 jobs:
