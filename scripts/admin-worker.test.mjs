@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import worker from '../workers/qslc-admin-edge.mjs';
+const token='test-only-adapter-token';
+const env={QSLC_WORKER_TOKEN:token,SSOT_KV:{get:async()=>null}};
+const req=(path,method='GET')=>new Request('https://admin.qslc-hei.com'+path,{method,headers:{'x-qslc-token':token}});
+test('write stub must not acknowledge unpersisted data',async()=>{const r=await worker.fetch(req('/ssot/write','POST'),env);assert.equal(r.status,501)});
+test('reserved sync must not claim success',async()=>{const r=await worker.fetch(req('/d1/sync','POST'),env);assert.equal(r.status,501)});
+test('missing source does not report operational agent',async()=>{const r=await worker.fetch(req('/api/agent/status'),env);const v=await r.json();assert.equal(v.status,'unverified');assert.equal(v.ssot_connected,false)});
+test('missing database cannot claim queue success',async()=>{const r=await worker.fetch(req('/base44/queue','POST'),env);assert.equal(r.status,503)});
