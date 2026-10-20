@@ -1,29 +1,24 @@
 name: MP-33 private SSOT checks
-
 on:
   pull_request:
     paths: ['services/ssot/**', 'workers/qslc-admin-edge.mjs', 'scripts/admin-worker.test.mjs', 'migrations/**', '.github/workflows/mp33-ssot.yml']
   push:
     branches: [main]
     paths: ['services/ssot/**', 'workers/qslc-admin-edge.mjs', 'scripts/admin-worker.test.mjs', 'migrations/**', '.github/workflows/mp33-ssot.yml']
-
 permissions:
   contents: read
-
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Test admin Worker contract
-        run: node --test scripts/admin-worker.test.mjs
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Test private SSOT service
-        run: python -m unittest discover -s services/ssot/tests -v
-      - name: Build private SSOT container
-        run: docker build -t qslc-private-ssot:test services/ssot
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test scripts/admin-worker.test.mjs
+      - run: pip install -r services/ssot/requirements.txt httpx==0.28.1
+      - run: python -m unittest discover -s services/ssot -v
+      - run: docker build -f services/ssot/Dockerfile -t qslc-ssot:ci .
