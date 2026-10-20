@@ -24,8 +24,7 @@ async function writeMetric(request,env,version,writeLocked=false){
   if(!env.DB)return json({ok:false,error:'database_unavailable',persisted:false},503);
   const key=request.headers.get('idempotency-key')||'';
   if(!/^[A-Za-z0-9._:-]{8,128}$/.test(key))return json({ok:false,error:'valid_idempotency_key_required',persisted:false},400);
-  const body=await request.json().catch(()=>null),validation=validateMetric(body);
-  if(validation)return json({ok:false,error:validation,persisted:false},400);
+  const body=await request.json().catch(()=>null);
   const requestSha=await sha256(body);
   const existing=await env.DB.prepare('SELECT request_sha256, response_json FROM idempotency_keys WHERE key = ?1').bind(key).first();
   if(existing){
@@ -33,8 +32,9 @@ async function writeMetric(request,env,version,writeLocked=false){
     const saved=JSON.parse(existing.response_json||'{}');
     return json({...saved,idempotent_replay:true});
   }
+  const validation=validateMetric(body);
+  if(validation)return json({ok:false,error:validation,persisted:false},400);
   if(writeLocked)return json({ok:false,error:'write_lock enabled',persisted:false},423);
-  const previous=await env.DB.prepare('SELECT ssot_sha256 FROM ssot_metrics WHERE date = ?1').bind(body.date).first();
   const now=new Date().toISOString();
   const response={ok:true,persisted:true,idempotent_replay:false,date:body.date,version};
   const upsert=`INSERT INTO ssot_metrics (${metricFields.join(',')}, ssot_version, ssot_sha256, mirrored_at)
@@ -43,8 +43,8 @@ async function writeMetric(request,env,version,writeLocked=false){
   try{
     await env.DB.batch([
       env.DB.prepare('INSERT INTO idempotency_keys(key, request_sha256, response_json, created_at) VALUES(?1, ?2, ?3, ?4)').bind(key,requestSha,JSON.stringify(response),now),
-      env.DB.prepare(upsert).bind(...metricValues(body),version,requestSha,now),
-      env.DB.prepare("INSERT INTO audit_log(created_at, actor, action, object_path, previous_sha256, new_sha256, notes) VALUES(?1, 'qslc-admin-edge', 'ssot_write', ?2, ?3, ?4, ?5)").bind(now,`ssot_metrics/${body.date}`,previous?.ssot_sha256||null,requestSha,JSON.stringify({idempotency_key:key,verification_status:body.verification_status,source:body.source}))
+      env.DB.prepare("INSERT INTO audit_log(created_at, actor, action, object_path, previous_sha256, new_sha256, notes) VALUES(?1, 'qslc-admin-edge', 'ssot_write', ?2, (SELECT ssot_sha256 FROM ssot_metrics WHERE date = ?3), ?4, ?5)").bind(now,`ssot_metrics/${body.date}`,body.date,requestSha,JSON.stringify({idempotency_key:key,verification_status:body.verification_status,source:body.source})),
+      env.DB.prepare(upsert).bind(...metricValues(body),version,requestSha,now)
     ]);
   }catch(error){
     const raced=await env.DB.prepare('SELECT request_sha256, response_json FROM idempotency_keys WHERE key = ?1').bind(key).first();
