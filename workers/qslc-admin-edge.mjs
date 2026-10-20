@@ -9,7 +9,10 @@ const canonicalize=value=>{if(Array.isArray(value))return value.map(canonicalize
 async function sha256(value){const bytes=new TextEncoder().encode(JSON.stringify(canonicalize(value)));const digest=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('');}
 function validateMetric(body){
   if(!body||typeof body!=='object'||Array.isArray(body))return 'body_must_be_object';
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(body.date||'')))return 'date_must_be_iso_day';
+  const day=String(body.date||''),match=/^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
+  if(!match)return 'date_must_be_iso_day';
+  const parsed=new Date(Date.UTC(Number(match[1]),Number(match[2])-1,Number(match[3])));
+  if(parsed.toISOString().slice(0,10)!==day)return 'date_must_be_iso_day';
   if(typeof body.source!=='string'||!body.source.trim())return 'source_required';
   if(typeof body.verification_status!=='string'||!body.verification_status.trim())return 'verification_status_required';
   if(typeof body.ssot_role!=='string'||!body.ssot_role.trim())return 'ssot_role_required';
@@ -17,7 +20,7 @@ function validateMetric(body){
   return null;
 }
 function metricValues(body){return metricFields.map(key=>body[key]??null);}
-async function writeMetric(request,env,version){
+async function writeMetric(request,env,version,writeLocked=false){
   if(!env.DB)return json({ok:false,error:'database_unavailable',persisted:false},503);
   const key=request.headers.get('idempotency-key')||'';
   if(!/^[A-Za-z0-9._:-]{8,128}$/.test(key))return json({ok:false,error:'valid_idempotency_key_required',persisted:false},400);
@@ -30,6 +33,8 @@ async function writeMetric(request,env,version){
     const saved=JSON.parse(existing.response_json||'{}');
     return json({...saved,idempotent_replay:true});
   }
+  if(writeLocked)return json({ok:false,error:'write_lock enabled',persisted:false},423);
+  const previous=await env.DB.prepare('SELECT ssot_sha256 FROM ssot_metrics WHERE date = ?1').bind(body.date).first();
   const now=new Date().toISOString();
   const response={ok:true,persisted:true,idempotent_replay:false,date:body.date,version};
   const upsert=`INSERT INTO ssot_metrics (${metricFields.join(',')}, ssot_version, ssot_sha256, mirrored_at)
@@ -39,7 +44,7 @@ async function writeMetric(request,env,version){
     await env.DB.batch([
       env.DB.prepare('INSERT INTO idempotency_keys(key, request_sha256, response_json, created_at) VALUES(?1, ?2, ?3, ?4)').bind(key,requestSha,JSON.stringify(response),now),
       env.DB.prepare(upsert).bind(...metricValues(body),version,requestSha,now),
-      env.DB.prepare("INSERT INTO audit_log(created_at, actor, action, object_path, previous_sha256, new_sha256, notes) VALUES(?1, 'qslc-admin-edge', 'ssot_write', ?2, NULL, ?3, ?4)").bind(now,`ssot_metrics/${body.date}`,requestSha,JSON.stringify({idempotency_key:key,verification_status:body.verification_status,source:body.source}))
+      env.DB.prepare("INSERT INTO audit_log(created_at, actor, action, object_path, previous_sha256, new_sha256, notes) VALUES(?1, 'qslc-admin-edge', 'ssot_write', ?2, ?3, ?4, ?5)").bind(now,`ssot_metrics/${body.date}`,previous?.ssot_sha256||null,requestSha,JSON.stringify({idempotency_key:key,verification_status:body.verification_status,source:body.source}))
     ]);
   }catch(error){
     const raced=await env.DB.prepare('SELECT request_sha256, response_json FROM idempotency_keys WHERE key = ?1').bind(key).first();
@@ -64,7 +69,7 @@ if(m==='GET'&&p==='/eve/brief')return json({ok:true,brief:'Cloudflare admin edge
 if(['/ssot/lock','/ssot/unlock','/ssot/write','/base44/queue','/d1/sync'].includes(p)&&!(await auth(request,env)))return json({ok:false,error:'unauthorized'},401);
 if(m==='POST'&&p==='/ssot/lock'){await env.SSOT_KV?.put('write_lock.json',JSON.stringify({write_lock:true,updated_at:new Date().toISOString()}));return json({ok:true,write_lock:true});}
 if(m==='POST'&&p==='/ssot/unlock'){await env.SSOT_KV?.put('write_lock.json',JSON.stringify({write_lock:false,updated_at:new Date().toISOString()}));return json({ok:true,write_lock:false});}
-if(m==='POST'&&p==='/ssot/write'){if(lock.write_lock)return json({ok:false,error:'write_lock enabled',persisted:false},423);return writeMetric(request,env,version);}
+if(m==='POST'&&p==='/ssot/write')return writeMetric(request,env,version,!!lock.write_lock);
 if(m==='POST'&&p==='/base44/queue'){if(!env.DB)return json({ok:false,error:'database_unavailable',queued:false},503);const body=await request.json().catch(()=>({}));await env.DB.prepare("INSERT INTO command_queue(created_at, source, command_type, payload_json, status) VALUES(?1, ?2, ?3, ?4, 'queued')").bind(new Date().toISOString(),body.source||'base44',body.command_type||'unknown',JSON.stringify(body)).run();return json({ok:true,queued:true});}
 if(m==='POST'&&p==='/d1/sync')return json({ok:false,error:'d1_sync_not_implemented',synced:false},501);
 if(m==='GET')return json({ok:false,error:'not_found',path:p},404);return json({ok:false,error:'method_not_allowed'},405);
