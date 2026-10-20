@@ -7,7 +7,11 @@ function mockDb(){
   const keys=new Map(),metrics=new Map(),audit=[];
   const statement=sql=>({
     bind(...args){this.args=args;return this},
-    async first(){return sql.startsWith('SELECT request_sha256')?(keys.get(this.args[0])||null):null},
+    async first(){
+      if(sql.startsWith('SELECT request_sha256'))return keys.get(this.args[0])||null;
+      if(sql.startsWith('SELECT ssot_sha256')){const row=metrics.get(this.args[0]);return row?{ssot_sha256:row[14]}:null;}
+      return null;
+    },
     async run(){
       if(sql.startsWith('INSERT INTO idempotency_keys')){if(keys.has(this.args[0]))throw new Error('UNIQUE');keys.set(this.args[0],{request_sha256:this.args[1],response_json:this.args[2]});}
       if(sql.startsWith('INSERT INTO ssot_metrics'))metrics.set(this.args[0],this.args);
@@ -28,7 +32,10 @@ test('source-backed metric is persisted with audit evidence',async()=>{const db=
 test('identical retry replays without a second write',async()=>{const db=mockDb(),request=()=>req('/ssot/write','POST',metric,{'idempotency-key':'mp40-test-0003'});await worker.fetch(request(),baseEnv(db));const r=await worker.fetch(request(),baseEnv(db));const v=await r.json();assert.equal(v.idempotent_replay,true);assert.equal(db.metrics.size,1);assert.equal(db.audit.length,1)});
 test('reused key with different payload conflicts',async()=>{const db=mockDb(),headers={'idempotency-key':'mp40-test-0004'};await worker.fetch(req('/ssot/write','POST',metric,headers),baseEnv(db));const r=await worker.fetch(req('/ssot/write','POST',{...metric,source:'jira:MP-41'},headers),baseEnv(db));assert.equal(r.status,409)});
 test('missing provenance is rejected',async()=>{const db=mockDb();const r=await worker.fetch(req('/ssot/write','POST',{...metric,source:''},{'idempotency-key':'mp40-test-0005'}),baseEnv(db));assert.equal(r.status,400);assert.equal(db.metrics.size,0)});
+test('calendar-invalid dates are rejected',async()=>{const db=mockDb();const r=await worker.fetch(req('/ssot/write','POST',{...metric,date:'2026-02-31'},{'idempotency-key':'mp40-test-date'}),baseEnv(db));assert.equal(r.status,400);assert.equal(db.metrics.size,0)});
 test('unknown hours remain nullable',async()=>{const db=mockDb();const r=await worker.fetch(req('/ssot/write','POST',metric,{'idempotency-key':'mp40-test-0006'}),baseEnv(db));assert.equal(r.status,200);assert.equal(db.metrics.get(metric.date)[3],null)});
+test('updated metric audit links the predecessor hash',async()=>{const db=mockDb();await worker.fetch(req('/ssot/write','POST',metric,{'idempotency-key':'mp40-test-prev-1'}),baseEnv(db));await worker.fetch(req('/ssot/write','POST',{...metric,source:'jira:MP-40-update'},{'idempotency-key':'mp40-test-prev-2'}),baseEnv(db));assert.equal(db.audit.length,2);assert.equal(db.audit[1][2],db.audit[0][3]);});
+test('write lock allows completed replay but rejects a new write',async()=>{const db=mockDb(),env={...baseEnv(db),SSOT_KV:{get:async key=>key==='write_lock.json'?'{"write_lock":true}':null}},headers={'idempotency-key':'mp40-test-lock-1'};const unlocked=baseEnv(db);await worker.fetch(req('/ssot/write','POST',metric,headers),unlocked);const replay=await worker.fetch(req('/ssot/write','POST',metric,headers),env);assert.equal(replay.status,200);assert.equal((await replay.json()).idempotent_replay,true);const blocked=await worker.fetch(req('/ssot/write','POST',{...metric,date:'2026-10-21'},{'idempotency-key':'mp40-test-lock-2'}),env);assert.equal(blocked.status,423);});
 test('reserved sync must not claim success',async()=>{const r=await worker.fetch(req('/d1/sync','POST'),baseEnv(mockDb()));assert.equal(r.status,501)});
 test('missing source does not report operational agent',async()=>{const r=await worker.fetch(req('/api/agent/status'),baseEnv(mockDb()));const v=await r.json();assert.equal(v.status,'unverified');assert.equal(v.ssot_connected,false)});
 test('missing database cannot claim queue success',async()=>{const r=await worker.fetch(req('/base44/queue','POST'),baseEnv());assert.equal(r.status,503)});
