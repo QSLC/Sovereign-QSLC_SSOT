@@ -1,0 +1,25 @@
+services:
+  ssot-api:
+    build:
+      context: ../..
+      dockerfile: services/ssot/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      QSLC_ADMIN_TOKEN: ${QSLC_ADMIN_TOKEN:?Set a private token of at least 32 characters}
+      SSOT_DB: /data/ssot.db
+    volumes:
+      - ssot-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+volumes:
+  ssot-data:
