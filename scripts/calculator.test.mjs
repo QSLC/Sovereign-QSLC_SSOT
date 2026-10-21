@@ -19,8 +19,8 @@ function event(id,type,object,created=now){return {id,type,created,livemode:true
 const orderEvent=event('evt_order','checkout.session.completed',{id:sid,customer:'cus_fixture',subscription:'sub_fixture',payment_link:'plink_1UOBYhGx1CvHyKS2SSkXLnNH',payment_status:'paid'})
 const sub={id:'sub_fixture',status:'active',items:{data:[{price:{id:'price_1U1SXgGx1CvHyKS2bIEopIuZ'},current_period_end:now+3600}]}}
 const request=(path,body,cookie)=>new Request(`https://qslc-hei.com${path}`,{method:'POST',headers:{origin:'https://qslc-hei.com','content-type':'application/json',...(cookie?{cookie}:{})},body:JSON.stringify(body)})
-const signedRequest=(body,secret='local-fixture-only')=>{
-  const signature=createHmac('sha256',secret).update(`${now}.${body}`).digest('hex')
+const signedRequest=(body,signingMaterial)=>{
+  const signature=createHmac('sha256',signingMaterial).update(`${now}.${body}`).digest('hex')
   return new Request('https://qslc-hei.com/api/entitlement/stripe-webhook',{method:'POST',headers:{'stripe-signature':`t=${now},v1=${signature}`},body})
 }
 async function provision(env){await recordEvent(env.CALCULATOR_DB,orderEvent);await recordEvent(env.CALCULATOR_DB,event('evt_sub','customer.subscription.created',sub))}
@@ -33,7 +33,7 @@ test('verified webhook → one-time access → private saved calculation → his
   const {env,sqlite}=setup()
   for(const ev of [orderEvent,event('evt_sub','customer.subscription.created',sub)]){
     const body=JSON.stringify(ev)
-    const response=await webhook({env,request:signedRequest(body)})
+    const response=await webhook({env,request:signedRequest(body,env.STRIPE_WEBHOOK_SECRET)})
     assert.equal(response.status,200)
   }
   const claimed=await claim({env,request:request('/api/entitlement/claim',{session_id:sid})});assert.equal(claimed.status,200)
@@ -77,8 +77,8 @@ test('direct-sale Stripe retries create one durable receipt and one entitlement 
   const {env,db,entitlementWrites}=setup()
   const direct=event('evt_direct','checkout.session.completed',{id:`cs_live_${'b'.repeat(24)}`,payment_link:'plink_1UNipIGx1CvHyKS26Sm9X2vZ',payment_status:'paid',customer:'cus_fixture',amount_total:1000,currency:'usd'})
   const body=JSON.stringify(direct)
-  const first=await webhook({env,request:signedRequest(body)})
-  const replay=await webhook({env,request:signedRequest(body)})
+  const first=await webhook({env,request:signedRequest(body,env.STRIPE_WEBHOOK_SECRET)})
+  const replay=await webhook({env,request:signedRequest(body,env.STRIPE_WEBHOOK_SECRET)})
   assert.equal(first.status,200);assert.equal((await first.json()).duplicate,false)
   assert.equal(replay.status,200);assert.equal((await replay.json()).duplicate,true)
   assert.equal(entitlementWrites.length,1)
@@ -88,7 +88,7 @@ test('webhook fails closed when durable event storage is unavailable',async()=>{
   const {env}=setup()
   delete env.CALCULATOR_DB
   const body=JSON.stringify(orderEvent)
-  const response=await webhook({env,request:signedRequest(body)})
+  const response=await webhook({env,request:signedRequest(body,env.STRIPE_WEBHOOK_SECRET)})
   assert.equal(response.status,503)
   assert.equal((await response.json()).error,'event_store_unavailable')
 })
