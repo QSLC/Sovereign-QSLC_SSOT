@@ -1,15 +1,4 @@
-import { recordEvent } from '../../_lib/calculator.js'
-const PRODUCT_BY_LINK = {
-  'plink_1UNipIGx1CvHyKS26Sm9X2vZ': 'book-01',
-  'plink_1UNipNGx1CvHyKS2qbVJf1ym': 'book-02',
-  'plink_1UNipSGx1CvHyKS2sTExcIpE': 'book-03',
-  'plink_1UNipXGx1CvHyKS2oxJnmmVp': 'book-04',
-  'plink_1UNiqEGx1CvHyKS2UjJeX97o': 'book-05',
-  'plink_1UNipoGx1CvHyKS2MBevO2Kg': 'book-06',
-  'plink_1UNiq9Gx1CvHyKS2N03F3fju': 'book-07',
-  'plink_1UNi9IGx1CvHyKS2xiw4DDTY': 'vault',
-  'plink_1UNixyGx1CvHyKS2TM06Dv7t': 'starter-template',
-}
+import { DIRECT_PRODUCTS_BY_LINK, recordEvent } from '../../_lib/calculator.js'
 
 export async function onRequestPost({ request, env }) {
   const body = await request.text()
@@ -26,13 +15,19 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: 'invalid_json' }, 400)
   }
 
-  if (env.CALCULATOR_DB) await recordEvent(env.CALCULATOR_DB, event)
+  // D1 provides the durable, unique event receipt. KV alone is eventually consistent and
+  // cannot safely coordinate concurrent Stripe retries, so fail closed without D1.
+  if (!env.CALCULATOR_DB) return json({ ok: false, error: 'event_store_unavailable' }, 503)
+  const receipt = await recordEvent(env.CALCULATOR_DB, event)
+  if (receipt.duplicate) return json({ received: true, duplicate: true })
+  if (!receipt.accepted) return json({ received: true, ignored: true, reason: receipt.reason })
 
   if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
     const session = event.data?.object || {}
-    const product = PRODUCT_BY_LINK[session.payment_link]
+    const product = DIRECT_PRODUCTS_BY_LINK[session.payment_link]
 
     if (product && (session.payment_status === 'paid' || session.payment_status === 'no_payment_required')) {
+      if (!env.ENTITLEMENTS) return json({ ok: false, error: 'entitlement_store_unavailable' }, 503)
       await env.ENTITLEMENTS.put('session:' + session.id, JSON.stringify({
         session_id: session.id,
         product,
@@ -48,7 +43,7 @@ export async function onRequestPost({ request, env }) {
     }
   }
 
-  return json({ received: true })
+  return json({ received: true, duplicate: false })
 }
 
 async function verifyStripeSignature(header, body, secret) {
