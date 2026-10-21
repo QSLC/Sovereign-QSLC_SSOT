@@ -8,6 +8,17 @@ export const TIERS_BY_PRICE = {
   price_1UGqPfGx1CvHyKS2RBou35pV: 'pro',
   price_1UGqPgGx1CvHyKS2969375gG: 'business',
 }
+export const DIRECT_PRODUCTS_BY_LINK = {
+  plink_1UNipIGx1CvHyKS26Sm9X2vZ: 'book-01',
+  plink_1UNipNGx1CvHyKS2qbVJf1ym: 'book-02',
+  plink_1UNipSGx1CvHyKS2sTExcIpE: 'book-03',
+  plink_1UNipXGx1CvHyKS2oxJnmmVp: 'book-04',
+  plink_1UNiqEGx1CvHyKS2UjJeX97o: 'book-05',
+  plink_1UNipoGx1CvHyKS2MBevO2Kg: 'book-06',
+  plink_1UNiq9Gx1CvHyKS2N03F3fju: 'book-07',
+  plink_1UNi9IGx1CvHyKS2xiw4DDTY: 'vault',
+  plink_1UNixyGx1CvHyKS2TM06Dv7t: 'starter-template',
+}
 export const FORMULA_VERSION = 'operational-1.0.0'
 export function json(data, status = 200, headers = {}) {
   return new Response(JSON.stringify(data), {status, headers: {'content-type':'application/json', 'cache-control':'no-store', 'x-content-type-options':'nosniff', ...headers}})
@@ -45,9 +56,9 @@ export async function authenticate(request, env) {
   return accessForOrder(env.CALCULATOR_DB, order)
 }
 export async function recordEvent(db, event) {
-  if (!event?.id || !Number.isInteger(event.created) || event.livemode !== true) return
+  if (!event?.id || !Number.isInteger(event.created) || event.livemode !== true) return {accepted:false, duplicate:false, reason:'invalid_event'}
   const object = structuredClone(event.data?.object || {})
-  let subject, kind, priority = 0
+  let subject, kind, priority = 0, orderStatement
   if (event.type.startsWith('customer.subscription.')) {
     subject = object.id; kind = 'subscription'
     if (event.type === 'customer.subscription.deleted') object.status = 'canceled'
@@ -58,16 +69,22 @@ export async function recordEvent(db, event) {
     object.paid = event.type === 'invoice.paid' && object.status === 'paid'
   } else if (event.type.startsWith('checkout.session.')) {
     const tier = TIERS_BY_LINK[object.payment_link]
-    if (!tier || !object.id || !object.customer || !object.subscription) return
-    subject = object.subscription; kind = 'checkout'
-  } else return
-  if (!subject) return
+    const directProduct = DIRECT_PRODUCTS_BY_LINK[object.payment_link]
+    if (!object.id || (!tier && !directProduct)) return {accepted:false, duplicate:false, reason:'unrecognized_checkout'}
+    kind = 'checkout'
+    if (tier) {
+      if (!object.customer || !object.subscription) return {accepted:false, duplicate:false, reason:'incomplete_subscription_checkout'}
+      subject = object.subscription
+      const paid = ['checkout.session.completed','checkout.session.async_payment_succeeded'].includes(event.type) && object.payment_status === 'paid'
+      orderStatement = db.prepare('INSERT INTO calculator_orders(session,customer,subscription,tier,paid,created) VALUES(?,?,?,?,?,?) ON CONFLICT(session) DO UPDATE SET paid=excluded.paid,created=excluded.created WHERE excluded.created>calculator_orders.created OR (excluded.created=calculator_orders.created AND excluded.paid<calculator_orders.paid)').bind(object.id,object.customer,object.subscription,tier,Number(paid),event.created)
+    } else subject = object.id
+  } else return {accepted:false, duplicate:false, reason:'unsupported_event'}
+  if (!subject) return {accepted:false, duplicate:false, reason:'missing_subject'}
   const statements = [db.prepare('INSERT OR IGNORE INTO calculator_events(id,subject,kind,created,priority,payload) VALUES(?,?,?,?,?,?)').bind(event.id,subject,kind,event.created,priority,JSON.stringify(object))]
-  if (kind === 'checkout') {
-    const paid = ['checkout.session.completed','checkout.session.async_payment_succeeded'].includes(event.type) && object.payment_status === 'paid'
-    statements.push(db.prepare('INSERT INTO calculator_orders(session,customer,subscription,tier,paid,created) VALUES(?,?,?,?,?,?) ON CONFLICT(session) DO UPDATE SET paid=excluded.paid,created=excluded.created WHERE excluded.created>calculator_orders.created OR (excluded.created=calculator_orders.created AND excluded.paid<calculator_orders.paid)').bind(object.id,object.customer,object.subscription,TIERS_BY_LINK[object.payment_link],Number(paid),event.created))
-  }
-  await db.batch(statements)
+  if (orderStatement) statements.push(orderStatement)
+  const results = await db.batch(statements)
+  const accepted = Number(results[0]?.meta?.changes || 0) > 0
+  return {accepted, duplicate:!accepted, kind, subject}
 }
 export function calculate(input) {
   const keys = ['hours','hourlyRate','revenue','expenses','automatedHours','evidenceCount','recordCount']
