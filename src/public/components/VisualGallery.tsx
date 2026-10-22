@@ -1,41 +1,46 @@
-import { Bot, GalleryHorizontalEnd, Images, Network, ShieldCheck, Sparkles } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ArrowLeft, ArrowRight, Pause, Play, ShieldCheck } from 'lucide-react'
 
 const scenes = [
-  [Bot,'EVE Command Core','Voice, agent, orchestration, and executive interaction visual language.'],
-  [ShieldCheck,'Sovereign Data Vault','SSOT, evidence, governance, anti-lockout, recovery, and security.'],
-  [Network,'System Matrix','Source -> validation -> SSOT -> calculation -> visualization -> approval -> audit.'],
-  [Images,'Content Studio','AI-assisted books, visuals, education, campaign assets, and weekly content generation.'],
-  [Sparkles,'PSI Research Lab','Research/theory visualization kept separate from verified financial and operational facts.'],
-  [GalleryHorizontalEnd,'Executive Twin','CEO view across finance, operations, security, governance, and automation health.'],
+  { name: 'The Event Horizon', kind: 'Black-hole observatory', accent: '#f4c76d', summary: 'Accretion disk and gravitational lensing — AI-inspired conceptual artwork.' },
+  { name: 'Planetary Voyage', kind: 'Planetary systems', accent: '#b0ff53', summary: 'A cinematic planetary exploration concept, not live NASA imagery.' },
+  { name: 'Sovereign Star Atlas', kind: 'Star maps', accent: '#aa74ff', summary: 'Navigation constellations and research overlays, not observational star data.' },
+  { name: 'Fleet Beyond Earth', kind: 'Spacecraft and logistics', accent: '#f4c76d', summary: 'Future fleet and spacecraft architecture concept art.' },
+  { name: 'Intelligence Blueprint', kind: 'Technology sectors', accent: '#b0ff53', summary: 'Conceptual systems, security and automation blueprints.' },
+  { name: 'Storm Observatory', kind: 'Earth and atmospheric systems', accent: '#aa74ff', summary: 'Stylized storm visualization, not a real-time weather feed.' },
 ] as const
 
+function indexForUtcDay() {
+  return Math.floor(Date.now() / 86400000) % scenes.length
+}
+
 export function VisualGallery() {
+  const [selected, setSelected] = useState(indexForUtcDay)
+  const [motion, setMotion] = useState(false)
+  useEffect(() => {
+    const timer = window.setInterval(() => setSelected(indexForUtcDay()), 3600000)
+    return () => window.clearInterval(timer)
+  }, [])
+  const active = scenes[selected]
+  const change = (direction: number) => setSelected(current => (current + direction + scenes.length) % scenes.length)
   return <section id="gallery" className="section-shell">
     <div className="section-heading">
-      <span className="eyebrow">VISUAL GALLERY</span>
-      <h2>Show the architecture without giving away the private core.</h2>
-      <p>These public-safe scenes explain what QSLC EVE can do while private SSOT data, credentials, payroll, banking, proprietary formulas, and owner evidence remain protected.</p>
+      <span className="eyebrow">QSLC // EVE-HEI // VISUAL OBSERVATORY</span>
+      <h2>Every dimension, one sovereign visual identity.</h2>
+      <p>Explore daily rotating cinematic concepts for planetary systems, black holes, star maps, spacecraft, blueprints, and atmospheric intelligence. All illustrations are conceptual, not a live scientific feed.</p>
     </div>
-    <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {scenes.map(([Icon,title,copy],index) => <article key={title} className="glass-card relative min-h-[250px] overflow-hidden p-6">
-        <div className="pointer-events-none absolute inset-0 opacity-70" style={{background:`radial-gradient(circle at ${20+(index%3)*22}% 25%, rgba(34,211,238,.28), transparent 30%), radial-gradient(circle at 80% 70%, rgba(168,85,247,.24), transparent 34%), linear-gradient(145deg, rgba(2,6,23,.4), rgba(15,23,42,.88))`}}/>
-        <svg viewBox="0 0 360 180" role="img" aria-label={`${title} architecture illustration`} className="relative z-10 mb-6 w-full rounded-xl border border-cyan-300/20 bg-slate-950">
-          <defs><linearGradient id={`scene-${index}`}><stop stopColor="#22d3ee"/><stop offset="1" stopColor="#a855f7"/></linearGradient></defs>
-          {[0,1,2].map(n => <g key={n}><path d={`M 72 ${40+n*50} Q 150 ${40+n*50} 208 90`} fill="none" stroke={`url(#scene-${index})`} strokeWidth="3"/><rect x="20" y={24+n*50} width="82" height="32" rx="8" fill="#172554" stroke="#22d3ee"/><text x="61" y={44+n*50} textAnchor="middle" fill="#e0f2fe" fontSize="11">{['INPUT','VALIDATE','EVIDENCE'][n]}</text></g>)}
-          <circle cx="244" cy="90" r="40" fill="#3b0764" stroke="#bef264" strokeWidth="3"/>
-          <circle cx="244" cy="90" r="29" fill="none" stroke="#c084fc" strokeWidth="2"/>
-          <text x="244" y="95" textAnchor="middle" fill="#ffffff" fontSize="14" fontWeight="bold">{['EVE','SSOT','FLOW','STUDIO','PSI','CEO'][index]}</text>
-          <path d="M 286 90 H 329" stroke="#bef264" strokeWidth="3"/><circle cx="332" cy="90" r="7" fill="#bef264"/>
-        </svg>
-        <div className="relative z-10 flex h-full min-h-[200px] flex-col">
-          <Icon size={30} className="text-cyan-300"/>
-          <div className="mt-auto">
-            <h3 className="text-2xl font-black text-white">{title}</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-300">{copy}</p>
-          </div>
-        </div>
-      </article>)}
+    <div className="mt-8 overflow-hidden rounded-3xl border border-purple-400/30 bg-[#05030d] shadow-[0_0_50px_rgba(126,34,206,.16)]">
+      <div className="relative flex min-h-[350px] flex-col justify-between overflow-hidden p-5 sm:min-h-[480px] sm:p-8" style={{background:'radial-gradient(ellipse at 47% 44%, #6123a1 0%,#240d4f 21%,#090617 53%,#020108 90%)'}}>
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true" style={{backgroundImage:'radial-gradient(circle at 12% 28%,#fff 0 1px,transparent 2px),radial-gradient(circle at 73% 17%,#beff5a 0 1px,transparent 2px),radial-gradient(circle at 80% 77%,#fff 0 1px,transparent 2px),radial-gradient(circle at 34% 82%,#be9fff 0 2px,transparent 3px)',backgroundSize:'127px 131px,197px 233px,97px 177px,251px 247px'}}/>
+        <div className="pointer-events-none absolute left-1/2 top-1/2 h-[190px] w-[190px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[275px] sm:w-[275px]" style={{background:'radial-gradient(circle at 36% 28%,#f4c76d 0%,#9b52f7 16%,#1a0b41 55%,#020109 72%)',boxShadow:'0 0 52px 17px #8534d355, 0 0 0 2px #beff5a50'}} aria-hidden="true"/>
+        <div className={`pointer-events-none absolute left-1/2 top-1/2 h-[95px] w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border-2 border-[#beff5a] sm:h-[130px] sm:w-[530px] ${motion ? 'animate-[spin_35s_linear_infinite]' : ''}`} style={{transform:'translate(-50%,-50%) rotate(-24deg)',boxShadow:'0 0 17px #b0ff5360'}} aria-hidden="true"/>
+        <div className="pointer-events-none absolute left-1/2 top-1/2 h-[260px] w-[140px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border border-[#b989ff] sm:h-[370px] sm:w-[190px]" style={{transform:'translate(-50%,-50%) rotate(25deg)'}} aria-hidden="true"/>
+        <div className="relative z-10 flex items-start justify-between gap-4"><div><p className="text-xs font-black tracking-[.32em] text-lime-300">EVE DAILY SIGNAL · {String(selected + 1).padStart(2,'0')}</p><p className="mt-2 text-xs tracking-widest text-purple-200">{active.kind}</p></div><span className="rounded-lg border border-lime-400/50 bg-black/70 px-3 py-2 text-right text-[9px] font-black tracking-widest text-lime-200"><ShieldCheck size={15} className="mb-1 ml-auto"/>QSLC GOVERNANCE<br/>CONCEPT ART</span></div>
+        <div className="relative z-10 mt-48 sm:mt-72"><h3 className="max-w-lg text-3xl font-black text-white sm:text-5xl">{active.name}</h3><p className="mt-3 max-w-xl text-sm text-purple-100">{active.summary}</p><div className="mt-5 flex items-center justify-between"><p className="text-xs font-black tracking-[.3em] text-[#f4c76d]">Ψ · QSLC // EVE-HEI</p><span className="text-[11px] text-slate-300">QSLC © {new Date().getUTCFullYear()}</span></div></div>
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-purple-400/20 p-4"><div className="flex gap-2"><button type="button" aria-label="Previous gallery scene" onClick={() => change(-1)} className="rounded-xl border border-purple-300/30 p-3 text-white"><ArrowLeft size={18}/></button><button type="button" aria-label="Next gallery scene" onClick={() => change(1)} className="rounded-xl border border-purple-300/30 p-3 text-white"><ArrowRight size={18}/></button><button type="button" aria-label={motion ? 'Pause orbit motion' : 'Play orbit motion'} onClick={() => setMotion(v => !v)} className="rounded-xl border border-purple-300/30 p-3 text-white">{motion ? <Pause size={18}/> : <Play size={18}/>}</button></div><p className="text-xs text-slate-400">Theme changes by UTC day · Select any scene · Illustrated, not live telemetry</p></div>
+      <div className="grid grid-cols-2 gap-2 p-4 sm:grid-cols-3">{scenes.map((scene,i)=><button type="button" key={scene.name} onClick={() => setSelected(i)} aria-pressed={selected===i} className={`rounded-xl border px-3 py-3 text-left text-sm transition ${selected===i?'border-lime-300 bg-lime-300/10 text-white':'border-purple-300/20 text-slate-300 hover:border-purple-300/60'}`}><span className="mb-1 block text-xs" style={{color:scene.accent}}>0{i+1}</span>{scene.name}</button>)}</div>
     </div>
-    <p className="mt-4 text-xs leading-5 text-slate-500">Visual concepts are presentation assets. A graphic is never evidence of revenue, system health, account balance, patent status, or provider connection.</p>
+    <p className="mt-4 text-xs leading-5 text-slate-500">Visuals are CSS-rendered interactive concepts and branded illustrations, not actual NASA images or live storm maps. Automated external image creation, publishing, and sales require a separately verified authorized pipeline.</p>
   </section>
 }
