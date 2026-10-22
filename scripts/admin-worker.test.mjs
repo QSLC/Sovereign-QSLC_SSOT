@@ -4,7 +4,7 @@ import worker from '../workers/qslc-admin-edge.mjs';
 
 const token=crypto.randomUUID();
 function mockDb(){
-  const keys=new Map(),metrics=new Map(),audit=[];
+  const keys=new Map(),metrics=new Map(),jobs=new Map(),audit=[];
   const statement=sql=>({
     bind(...args){this.args=args;return this},
     async first(){
@@ -14,11 +14,12 @@ function mockDb(){
     async run(){
       if(sql.startsWith('INSERT INTO idempotency_keys')){if(keys.has(this.args[0]))throw new Error('UNIQUE');keys.set(this.args[0],{request_sha256:this.args[1],response_json:this.args[2]});}
       if(sql.startsWith('INSERT INTO ssot_metrics'))metrics.set(this.args[0],this.args);
+      if(sql.startsWith('INSERT INTO command_queue')){if(jobs.has(this.args[4]))throw new Error('UNIQUE_JOB');jobs.set(this.args[4],this.args);}
       if(sql.startsWith('INSERT INTO audit_log')){const previous=metrics.get(this.args[2])?.[14]||null;audit.push([this.args[0],this.args[1],previous,this.args[3],this.args[4]]);}
-      return {success:true};
+      return {success:true,last_row_id:jobs.size};
     }
   });
-  return {keys,metrics,audit,prepare:statement,async batch(statements){for(const s of statements)await s.run();return statements.map(()=>({success:true}))}};
+  return {keys,metrics,jobs,audit,prepare:statement,async batch(statements){for(const s of statements)await s.run();return statements.map(()=>({success:true}))}};
 }
 const metric={date:'2026-10-20',day:'Tuesday',workstream:'MP-40',total_screen_time_hours:null,productivity_hours:null,other_hours:null,utilities_hours:null,unclassified_hours:null,hourly_rate:null,gross:null,source:'jira:MP-40',verification_status:'SOURCE_BACKED',ssot_role:'governance'};
 const req=(path,method='GET',body,headers={})=>new Request('https://admin.qslc-hei.com'+path,{method,headers:{'x-qslc-token':token,...headers},body:body===undefined?undefined:JSON.stringify(body)});
@@ -39,4 +40,8 @@ test('updated metric audit links the predecessor hash',async()=>{const db=mockDb
 test('write lock allows completed replay but rejects a new write',async()=>{const db=mockDb(),env={...baseEnv(db),SSOT_KV:{get:async key=>key==='write_lock.json'?'{"write_lock":true}':null}},headers={'idempotency-key':'mp40-test-lock-1'};const unlocked=baseEnv(db);await worker.fetch(req('/ssot/write','POST',metric,headers),unlocked);const replay=await worker.fetch(req('/ssot/write','POST',metric,headers),env);assert.equal(replay.status,200);assert.equal((await replay.json()).idempotent_replay,true);const blocked=await worker.fetch(req('/ssot/write','POST',{...metric,date:'2026-10-21'},{'idempotency-key':'mp40-test-lock-2'}),env);assert.equal(blocked.status,423);});
 test('reserved sync must not claim success',async()=>{const r=await worker.fetch(req('/d1/sync','POST'),baseEnv(mockDb()));assert.equal(r.status,501)});
 test('missing source does not report operational agent',async()=>{const r=await worker.fetch(req('/api/agent/status'),baseEnv(mockDb()));const v=await r.json();assert.equal(v.status,'unverified');assert.equal(v.ssot_connected,false)});
+test('command receipt requires an idempotency key',async()=>{const db=mockDb();const r=await worker.fetch(req('/base44/queue','POST',{source:'base44',command_type:'wake'}),baseEnv(db));assert.equal(r.status,400);assert.equal(db.jobs.size,0)});
+test('command receipt returns a durable job ID only after storage',async()=>{const db=mockDb();const r=await worker.fetch(req('/base44/queue','POST',{source:'base44',command_type:'wake'},{'idempotency-key':'mp40-command-0001'}),baseEnv(db));const v=await r.json();assert.equal(r.status,202);assert.equal(v.queued,true);assert.match(v.job_id,/^[0-9a-f-]{36}$/);assert.equal(db.jobs.has(v.job_id),true);assert.equal(db.audit.length,1)});
+test('identical command retry returns the same job ID without a second effect',async()=>{const db=mockDb(),request=()=>req('/base44/queue','POST',{source:'base44',command_type:'wake'},{'idempotency-key':'mp40-command-0002'});const first=await (await worker.fetch(request(),baseEnv(db))).json();const replayResponse=await worker.fetch(request(),baseEnv(db));const replay=await replayResponse.json();assert.equal(replay.idempotent_replay,true);assert.equal(replay.job_id,first.job_id);assert.equal(db.jobs.size,1);assert.equal(db.audit.length,1)});
+test('reused command key with different payload conflicts',async()=>{const db=mockDb(),headers={'idempotency-key':'mp40-command-0003'};await worker.fetch(req('/base44/queue','POST',{source:'base44',command_type:'wake'},headers),baseEnv(db));const r=await worker.fetch(req('/base44/queue','POST',{source:'base44',command_type:'sleep'},headers),baseEnv(db));assert.equal(r.status,409);assert.equal(db.jobs.size,1)});
 test('missing database cannot claim queue success',async()=>{const r=await worker.fetch(req('/base44/queue','POST'),baseEnv());assert.equal(r.status,503)});
