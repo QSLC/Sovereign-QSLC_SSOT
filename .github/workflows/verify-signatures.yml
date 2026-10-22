@@ -1,0 +1,32 @@
+name: QSLC Commit Signature Audit
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  signature-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect PR commit signature evidence
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$REPO/pulls/$PR/commits?per_page=100" --paginate --jq '.[] | [.sha[0:12], (.commit.verification.verified|tostring), (.commit.verification.reason // "unknown")] | @tsv' | tee signature-audit.tsv
+          if grep -Eq $'\tfalse\t' signature-audit.tsv; then
+            echo "::warning::Unsigned/unverified commits found. This audit does not fabricate signatures."
+          fi
+      - name: Audit latest commit on manual runs
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          gh api "repos/$REPO/commits/$SHA" --jq '{sha: .sha, verification: .commit.verification}'
