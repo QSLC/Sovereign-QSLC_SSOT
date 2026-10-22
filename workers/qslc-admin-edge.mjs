@@ -54,6 +54,34 @@ async function writeMetric(request,env,version,writeLocked=false){
   }
   return json(response);
 }
+async function queueCommand(request,env){
+  if(!env.DB)return json({ok:false,error:'database_unavailable',queued:false},503);
+  const key=request.headers.get('idempotency-key')||'';
+  if(!/^[A-Za-z0-9._:-]{8,128}$/.test(key))return json({ok:false,error:'valid_idempotency_key_required',queued:false},400);
+  const body=await request.json().catch(()=>null);
+  if(!body||typeof body!=='object'||Array.isArray(body))return json({ok:false,error:'body_must_be_object',queued:false},400);
+  const requestSha=await sha256({operation:'base44_queue',body});
+  const existing=await env.DB.prepare('SELECT request_sha256, response_json FROM idempotency_keys WHERE key = ?1').bind(key).first();
+  if(existing){
+    if(existing.request_sha256!==requestSha)return json({ok:false,error:'idempotency_key_conflict',queued:false},409);
+    return json({...JSON.parse(existing.response_json||'{}'),idempotent_replay:true});
+  }
+  const now=new Date().toISOString(),jobId=crypto.randomUUID();
+  const response={ok:true,queued:true,job_id:jobId,status:'queued',idempotent_replay:false};
+  try{
+    await env.DB.batch([
+      env.DB.prepare('INSERT INTO idempotency_keys(key, request_sha256, response_json, created_at) VALUES(?1, ?2, ?3, ?4)').bind(key,requestSha,JSON.stringify(response),now),
+      env.DB.prepare("INSERT INTO command_queue(created_at, source, command_type, payload_json, status, job_id) VALUES(?1, ?2, ?3, ?4, 'queued', ?5)").bind(now,body.source||'base44',body.command_type||'unknown',JSON.stringify(body),jobId),
+      env.DB.prepare("INSERT INTO audit_log(created_at, actor, action, object_path, previous_sha256, new_sha256, notes) VALUES(?1, 'qslc-admin-edge', 'command_queued', ?2, NULL, ?3, ?4)").bind(now,`command_queue/${jobId}`,requestSha,JSON.stringify({idempotency_key:key,source:body.source||'base44',command_type:body.command_type||'unknown'}))
+    ]);
+  }catch(error){
+    const raced=await env.DB.prepare('SELECT request_sha256, response_json FROM idempotency_keys WHERE key = ?1').bind(key).first();
+    if(raced?.request_sha256===requestSha)return json({...JSON.parse(raced.response_json||'{}'),idempotent_replay:true});
+    if(raced)return json({ok:false,error:'idempotency_key_conflict',queued:false},409);
+    throw error;
+  }
+  return json(response,202);
+}
 export default {async fetch(request,env){try{const u=new URL(request.url),p=u.pathname,m=request.method.toUpperCase(),host=u.hostname.toLowerCase();
 const isAdmin=host==='admin.qslc-hei.com';
 if(!isAdmin){if(m==='GET'&&p==='/health')return json({ok:true,system:'QSLC_PUBLIC_EDGE',host,timestamp:new Date().toISOString()});if(m==='GET')return proxyPublic(u);return json({ok:false,error:'public_read_only'},405);}
@@ -70,7 +98,7 @@ if(['/ssot/lock','/ssot/unlock','/ssot/write','/base44/queue','/d1/sync'].includ
 if(m==='POST'&&p==='/ssot/lock'){await env.SSOT_KV?.put('write_lock.json',JSON.stringify({write_lock:true,updated_at:new Date().toISOString()}));return json({ok:true,write_lock:true});}
 if(m==='POST'&&p==='/ssot/unlock'){await env.SSOT_KV?.put('write_lock.json',JSON.stringify({write_lock:false,updated_at:new Date().toISOString()}));return json({ok:true,write_lock:false});}
 if(m==='POST'&&p==='/ssot/write')return writeMetric(request,env,version,!!lock.write_lock);
-if(m==='POST'&&p==='/base44/queue'){if(!env.DB)return json({ok:false,error:'database_unavailable',queued:false},503);const body=await request.json().catch(()=>({}));await env.DB.prepare("INSERT INTO command_queue(created_at, source, command_type, payload_json, status) VALUES(?1, ?2, ?3, ?4, 'queued')").bind(new Date().toISOString(),body.source||'base44',body.command_type||'unknown',JSON.stringify(body)).run();return json({ok:true,queued:true});}
+if(m==='POST'&&p==='/base44/queue')return queueCommand(request,env);
 if(m==='POST'&&p==='/d1/sync')return json({ok:false,error:'d1_sync_not_implemented',synced:false},501);
 if(m==='GET')return json({ok:false,error:'not_found',path:p},404);return json({ok:false,error:'method_not_allowed'},405);
 }catch(e){return json({ok:false,error:'worker_exception',detail:String(e?.message||e)},500);}}};
