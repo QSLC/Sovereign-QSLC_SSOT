@@ -13,7 +13,11 @@ function setup(){
   const sqlite=new DatabaseSync(':memory:');sqlite.exec(readFileSync(new URL('../migrations/0001_calculator.sql',import.meta.url),'utf8'))
   const db={prepare(sql){let args=[];return {bind(...values){args=values;return this},async first(){return sqlite.prepare(sql).get(...args)||null},async all(){return {results:sqlite.prepare(sql).all(...args)}},async run(){const r=sqlite.prepare(sql).run(...args);return {meta:{changes:Number(r.changes)}}}}},async batch(items){sqlite.exec('BEGIN');try{const r=[];for(const s of items)r.push(await s.run());sqlite.exec('COMMIT');return r}catch(e){sqlite.exec('ROLLBACK');throw e}}}
   const entitlementWrites=[]
-  return {db,sqlite,entitlementWrites,env:{CALCULATOR_DB:db,STRIPE_WEBHOOK_SECRET:'local-fixture-only',ENTITLEMENTS:{put:async(key,value)=>entitlementWrites.push({key,value})}}}
+  const entitlementValues=new Map()
+  return {db,sqlite,entitlementWrites,env:{CALCULATOR_DB:db,STRIPE_WEBHOOK_SECRET:'local-fixture-only',ENTITLEMENTS:{
+    get:async(key)=>entitlementValues.get(key)||null,
+    put:async(key,value)=>{entitlementValues.set(key,value);entitlementWrites.push({key,value})},
+  }}}
 }
 function event(id,type,object,created=now){return {id,type,created,livemode:true,data:{object}}}
 const orderEvent=event('evt_order','checkout.session.completed',{id:sid,customer:'cus_fixture',subscription:'sub_fixture',payment_link:'plink_1UOBYhGx1CvHyKS2SSkXLnNH',payment_status:'paid'})
@@ -91,4 +95,26 @@ test('webhook fails closed when durable event storage is unavailable',async()=>{
   const response=await webhook({env,request:signedRequest(body,env.STRIPE_WEBHOOK_SECRET)})
   assert.equal(response.status,503)
   assert.equal((await response.json()).error,'event_store_unavailable')
+})
+
+test('signed Stripe retry repairs KV failure after D1 receipt was committed',async()=>{
+  const {env,db,entitlementWrites}=setup()
+  const direct=event('evt_kv_retry','checkout.session.completed',{id:`cs_live_${'c'.repeat(24)}`,payment_link:'plink_1UNipIGx1CvHyKS26Sm9X2vZ',payment_status:'paid',customer:'cus_fixture',amount_total:1000,currency:'usd'})
+  const body=JSON.stringify(direct)
+  const realPut=env.ENTITLEMENTS.put
+  let failOnce=true
+  env.ENTITLEMENTS.put=async(...args)=>{
+    if(failOnce){failOnce=false;throw new Error('transient KV outage')}
+    return realPut(...args)
+  }
+  const failed=await webhook({env,request:signedRequest(body,env.STRIPE_WEBHOOK_SECRET)})
+  assert.equal(failed.status,503)
+  assert.equal((await db.prepare('SELECT count(*) AS n FROM calculator_events WHERE id=?').bind(direct.id).first()).n,1)
+  const retry=await webhook({env,request:signedRequest(body,env.STRIPE_WEBHOOK_SECRET)})
+  assert.equal(retry.status,200)
+  assert.equal((await retry.json()).duplicate,true)
+  assert.equal(entitlementWrites.length,1)
+  const replay=await webhook({env,request:signedRequest(body,env.STRIPE_WEBHOOK_SECRET)})
+  assert.equal(replay.status,200)
+  assert.equal(entitlementWrites.length,1)
 })
