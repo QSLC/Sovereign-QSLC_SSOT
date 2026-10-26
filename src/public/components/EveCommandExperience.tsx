@@ -41,6 +41,16 @@ const routes = [
   { label: 'Questions', target: '#questions', aliases: ['questions', 'help'] },
   { label: 'Meeting', target: '#meeting', aliases: ['meeting', 'contact'] },
   { label: 'PSI notice', target: '#psi', aliases: ['psi', 'digital asset notice'] },
+  { label: 'Live sources', target: '#mission-wall', aliases: ['live sources', 'source wall'] },
+  { label: 'Hiring', target: '#hiring', aliases: ['hiring', 'careers'] },
+  { label: 'Newsletter', target: '#newsletter', aliases: ['newsletter', 'updates'] },
+  { label: 'EVE command center', target: '#command', aliases: ['eve command', 'command center'] },
+  { label: 'Evidence center', target: '/evidence-center.html', aliases: ['evidence center', 'evidence page'] },
+  { label: 'Terms', target: '/terms.html', aliases: ['terms', 'terms of service'] },
+  { label: 'Privacy', target: '/privacy.html', aliases: ['privacy', 'privacy policy'] },
+  { label: 'Refunds', target: '/refunds.html', aliases: ['refunds', 'refund policy'] },
+  { label: 'IP provenance', target: '/ip-provenance.html', aliases: ['ip provenance', 'provenance'] },
+  { label: 'Digital asset notice', target: '/digital-asset-notice.html', aliases: ['asset notice', 'digital asset'] },
 ]
 
 const suggestions = [
@@ -54,6 +64,39 @@ const suggestions = [
   { label: 'See the visual gallery', command: 'open gallery' },
   { label: 'Explore application demos', command: 'open apps' },
   { label: 'Review governance', command: 'open governance' },
+  { label: 'Inspect public source cards', command: 'open live sources' },
+  { label: 'View hiring information', command: 'open hiring' },
+  { label: 'Contact QSLC', command: 'open meeting' },
+  { label: 'Request product updates', command: 'open newsletter' },
+  { label: 'Return to EVE command', command: 'open eve command' },
+  { label: 'Read the evidence center', command: 'open evidence center' },
+  { label: 'Review terms of service', command: 'open terms' },
+  { label: 'Review privacy information', command: 'open privacy' },
+  { label: 'Review refunds policy', command: 'open refunds' },
+  { label: 'Read IP provenance', command: 'open ip provenance' },
+]
+
+const upgradeRoadmap = [
+  'Accessible keyboard navigation and focus review',
+  'Reduced-motion control for animated visuals',
+  'Star-map legend with clear synthetic/source labels',
+  'Calculator formula explanations beside each output',
+  'Book metadata and publication-status freshness labels',
+  'Public link-check report with last-checked timestamps',
+  'Responsive navigation menu for small screens',
+  'High-contrast visual mode and color-meaning labels',
+  'Accessible chart summaries for screen readers',
+  'Explicit data-source provenance on every public metric',
+  'Clear empty, loading, and error states for public panels',
+  'Opt-in browser preferences with a reset control',
+  'Keyboard shortcuts limited to public section navigation',
+  'Print-friendly public evidence and product summaries',
+  'Consistent image credits and provenance labels',
+  'Product comparison guidance linked to verified book details',
+  'Public integration directory showing verified connection state only',
+  'Privacy and retention explanation for each optional feature',
+  'Automated accessibility checks in pull-request validation',
+  'Release notes that distinguish shipped features from proposals',
 ]
 
 const phases = [
@@ -80,7 +123,12 @@ export function EveCommandExperience() {
     const normalized = value.trim().toLowerCase().replace(/[.,!?]/g, '')
     const route = routes.find(item => item.aliases.some(alias => normalized.includes(alias)))
     if (!route) {
-      setMessage('No matching public navigation skill. Try “open calculator”, “open star map”, “open books” or choose a suggestion below.')
+      setMessage('No matching public navigation skill. Try “open calculator”, “open star map”, “open books” or choose a suggested next step.')
+      return
+    }
+
+    if (route.target.startsWith('/')) {
+      window.location.assign(route.target)
       return
     }
 
@@ -158,7 +206,7 @@ export function EveCommandExperience() {
     <div className="rounded-3xl border border-cyan-300/30 bg-slate-950/90 p-6 shadow-[0_0_75px_#7c3aed22] sm:p-10">
       <p className="text-xs font-black tracking-[.25em] text-lime-300">QSLC · EVE-HEI INTERACTIVE COMMAND CENTER</p>
       <h2 className="mt-3 text-3xl font-black text-white">One command. Clear evidence.</h2>
-      <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">EVE public navigation helps visitors find the existing calculators, product information, learning material and evidence demonstrations. These browser-only navigation skills do not connect to private accounts, external tools or owner operations.</p>
+      <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">EVE public navigation helps visitors find existing calculators, product information, learning material and evidence demonstrations. These browser-only navigation skills do not connect to private accounts, external tools or owner operations.</p>
       <div className="mt-6 flex flex-wrap gap-3">
         <input aria-label="EVE public command" value={command} onChange={event => setCommand(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') runCommand() }} placeholder="open calculator" className="min-w-0 flex-1 rounded-xl border border-cyan-400/30 bg-slate-900 p-4 text-white outline-none focus:border-lime-300" />
         <button type="button" onClick={() => runCommand()} className="rounded-xl bg-lime-300 px-6 py-3 font-black text-slate-950"><Navigation className="mr-2 inline" size={16} />Run</button>
@@ -173,12 +221,20 @@ export function EveCommandExperience() {
       <div className="mt-8 rounded-2xl border border-cyan-300/20 bg-slate-900/60 p-5">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div><p className="text-xs font-black tracking-[.2em] text-cyan-200">GUIDED NEXT STEPS</p><h3 className="mt-2 text-xl font-black text-white">Choose where to explore</h3></div>
-          <span className="text-xs text-slate-400">10 public navigation suggestions · no external actions</span>
+          <span className="text-xs text-slate-400">20 public navigation suggestions · no external actions</span>
         </div>
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
           {suggestions.map((suggestion, index) => <button key={suggestion.command} type="button" onClick={() => { setCommand(suggestion.command); runCommand(suggestion.command) }} className="rounded-xl border border-slate-700 bg-slate-950/80 p-3 text-left text-sm text-slate-200 transition hover:border-cyan-300/50 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-300"><span className="mr-2 text-xs font-black text-purple-300">{String(index + 1).padStart(2, '0')}</span>{suggestion.label}</button>)}
         </div>
       </div>
+
+      <details className="mt-8 rounded-2xl border border-purple-300/25 bg-purple-950/20 p-5">
+        <summary className="cursor-pointer text-sm font-black text-purple-200">View the 20-step proposed upgrade sequence</summary>
+        <p className="mt-3 text-xs leading-5 text-slate-400">These are ordered candidates for review, not completed work or a commitment to deploy. Each requires source evidence, testing and appropriate approval before implementation.</p>
+        <ol className="mt-4 grid gap-2 sm:grid-cols-2">
+          {upgradeRoadmap.map((upgrade, index) => <li key={upgrade} className="rounded-lg border border-slate-800 bg-slate-950/70 p-3 text-sm text-slate-300"><span className="mr-2 font-mono text-xs font-black text-cyan-300">{String(index + 1).padStart(2, '0')}</span>{upgrade}<span className="mt-1 block text-[10px] font-bold uppercase tracking-wider text-slate-500">Proposed · not started</span></li>)}
+        </ol>
+      </details>
 
       <div className="mt-10 grid gap-4 md:grid-cols-5">{phases.map(([title, copy], index) => <article key={title} className="rounded-xl border border-purple-400/30 bg-gradient-to-b from-purple-950/60 to-slate-900 p-4"><div className="mb-4 h-2 rounded-full bg-slate-700"><div className="h-2 rounded-full bg-gradient-to-r from-lime-300 via-cyan-400 to-purple-500" style={{ width: `${(index + 1) * 20}%` }} /></div><h3 className="font-black text-lime-300">{title}</h3><p className="mt-2 text-xs leading-5 text-slate-300">{copy}</p></article>)}</div>
       <p className="mt-4 text-xs text-slate-400">Workflow bars illustrate sequence, not measured completion. This public command center is not an autonomous agent and does not claim live telemetry or external integrations.</p>
