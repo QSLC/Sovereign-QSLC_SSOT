@@ -19,31 +19,46 @@ export async function onRequestPost({ request, env }) {
   // cannot safely coordinate concurrent Stripe retries, so fail closed without D1.
   if (!env.CALCULATOR_DB) return json({ ok: false, error: 'event_store_unavailable' }, 503)
   const receipt = await recordEvent(env.CALCULATOR_DB, event)
-  if (receipt.duplicate) return json({ received: true, duplicate: true })
-  if (!receipt.accepted) return json({ received: true, ignored: true, reason: receipt.reason })
+  if (!receipt.accepted && !receipt.duplicate) {
+    return json({ received: true, ignored: true, reason: receipt.reason })
+  }
 
+  // D1 commits the event receipt before the KV side effect. If KV fails, Stripe
+  // retries the same event ID; a duplicate receipt must repair the missing
+  // entitlement rather than returning 200 and permanently losing access.
   if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
     const session = event.data?.object || {}
     const product = DIRECT_PRODUCTS_BY_LINK[session.payment_link]
 
     if (product && (session.payment_status === 'paid' || session.payment_status === 'no_payment_required')) {
-      if (!env.ENTITLEMENTS) return json({ ok: false, error: 'entitlement_store_unavailable' }, 503)
-      await env.ENTITLEMENTS.put('session:' + session.id, JSON.stringify({
-        session_id: session.id,
-        product,
-        payment_link: session.payment_link,
-        payment_status: session.payment_status,
-        customer: session.customer || null,
-        customer_email: session.customer_details?.email || session.customer_email || null,
-        amount_total: session.amount_total,
-        currency: session.currency,
-        created: session.created,
-        recorded_at: new Date().toISOString(),
-      }))
+      if (!env.ENTITLEMENTS?.get || !env.ENTITLEMENTS?.put) {
+        return json({ ok: false, error: 'entitlement_store_unavailable' }, 503)
+      }
+      const key = 'session:' + session.id
+      try {
+        // Sequential replays are no-ops; a missing KV value is recoverable.
+        if (!(await env.ENTITLEMENTS.get(key))) {
+          await env.ENTITLEMENTS.put(key, JSON.stringify({
+            session_id: session.id,
+            product,
+            payment_link: session.payment_link,
+            payment_status: session.payment_status,
+            customer: session.customer || null,
+            customer_email: session.customer_details?.email || session.customer_email || null,
+            amount_total: session.amount_total,
+            currency: session.currency,
+            created: session.created,
+            recorded_at: new Date().toISOString(),
+          }))
+        }
+      } catch {
+        // Never acknowledge a signed paid event while its entitlement is absent.
+        return json({ ok: false, error: 'entitlement_store_unavailable' }, 503)
+      }
     }
   }
 
-  return json({ received: true, duplicate: false })
+  return json({ received: true, duplicate: receipt.duplicate })
 }
 
 async function verifyStripeSignature(header, body, secret) {
