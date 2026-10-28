@@ -58,7 +58,7 @@ async function queueCommand(request,env){
   if(!env.DB)return json({ok:false,error:'database_unavailable',queued:false},503);
   const key=request.headers.get('idempotency-key')||'';
   if(!/^[A-Za-z0-9._:-]{8,128}$/.test(key))return json({ok:false,error:'valid_idempotency_key_required',queued:false},400);
-  const body=await request.json().catch(()=>null);
+  const body=await limitedJson(request);
   if(!body||typeof body!=='object'||Array.isArray(body))return json({ok:false,error:'body_must_be_object',queued:false},400);
   const requestSha=await sha256({operation:'base44_queue',body});
   const existing=await env.DB.prepare('SELECT request_sha256, response_json FROM idempotency_keys WHERE key = ?1').bind(key).first();
@@ -66,6 +66,8 @@ async function queueCommand(request,env){
     if(existing.request_sha256!==requestSha)return json({ok:false,error:'idempotency_key_conflict',queued:false},409);
     return json({...JSON.parse(existing.response_json||'{}'),idempotent_replay:true});
   }
+  if(!['status','brain_status','wake','natural_language_request'].includes(body.command_type))return json({ok:false,error:'unsupported_command',queued:false},400);
+  if(body.command_type==='natural_language_request'&&!['status','eve status','status full','brain status','find brain','eve_wake1010'].includes(String(body.command||'').trim().toLowerCase()))return json({ok:false,error:'unsupported_command',queued:false},400);
   const now=new Date().toISOString(),jobId=crypto.randomUUID();
   const response={ok:true,queued:true,job_id:jobId,status:'queued',idempotent_replay:false};
   try{
@@ -82,11 +84,54 @@ async function queueCommand(request,env){
   }
   return json(response,202);
 }
+async function limitedJson(request){
+  const reader=request.body?.getReader();if(!reader)return null;
+  const parts=[];let size=0;
+  for(;;){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>16384){await reader.cancel();const error=new Error('payload_too_large');error.status=413;throw error;}parts.push(value);}
+  const bytes=new Uint8Array(size);let offset=0;for(const part of parts){bytes.set(part,offset);offset+=part.length;}
+  try{return JSON.parse(new TextDecoder().decode(bytes));}catch{return null;}
+}
+async function deliverCommand(request,env,path,method){
+  if(!await auth(request,env))return json({ok:false,error:'unauthorized'},401);
+  if(!env.DB)return json({ok:false,error:'database_unavailable'},503);
+  const now=new Date().toISOString();
+  if(path==='/commands/claim'&&method==='POST'){
+    const body=await limitedJson(request);
+    if(!body||!/^[a-zA-Z0-9._:-]{3,80}$/.test(body.worker_id||''))return json({ok:false,error:'worker_id_required'},400);
+    await env.DB.prepare("UPDATE command_queue SET status='failed', processed_at=?1, lease_token=NULL WHERE status='processing' AND lease_until<=?1 AND attempts>=3").bind(now).run();
+    const token=crypto.randomUUID(),until=new Date(Date.now()+120000).toISOString();
+    const job=await env.DB.prepare(`UPDATE command_queue SET status='processing', attempts=attempts+1, lease_token=?1, lease_until=?2
+      WHERE id=(SELECT id FROM command_queue WHERE (status='queued' OR (status='processing' AND lease_until<=?3)) AND attempts<3 AND command_type IN ('status','brain_status','wake','natural_language_request') ORDER BY id LIMIT 1)
+      RETURNING job_id, command_type, payload_json, attempts, lease_token, lease_until`).bind(token,until,now).first();
+    return json({ok:true,job:job?{...job,payload:JSON.parse(job.payload_json),payload_json:undefined}:null});
+  }
+  const match=/^\/commands\/([0-9a-f-]{36})(\/result)?$/.exec(path);
+  if(!match)return json({ok:false,error:'not_found'},404);
+  const id=match[1];
+  if(!match[2]&&method==='GET'){
+    const job=await env.DB.prepare('SELECT job_id, command_type, status, attempts, created_at, processed_at, result_json FROM command_queue WHERE job_id=?1').bind(id).first();
+    if(!job)return json({ok:false,error:'not_found'},404);
+    return json({ok:true,job:{...job,result:job.result_json?JSON.parse(job.result_json):null,result_json:undefined}});
+  }
+  if(match[2]&&method==='POST'){
+    const body=await limitedJson(request);
+    if(!body||typeof body.ok!=='boolean'||typeof body.lease_token!=='string'||!body.result||typeof body.result!=='object'||Array.isArray(body.result))return json({ok:false,error:'invalid_result'},400);
+    const status=body.ok?'completed':'failed',result=JSON.stringify(body.result);
+    const results=await env.DB.batch([
+      env.DB.prepare("INSERT INTO audit_log(created_at,actor,action,object_path,notes) SELECT ?1,'eve-local-consumer',?2,?3,?4 WHERE EXISTS (SELECT 1 FROM command_queue WHERE job_id=?5 AND status='processing' AND lease_token=?6 AND lease_until>?1)").bind(now,'command_'+status,'command_queue/'+id,JSON.stringify({job_id:id}),id,body.lease_token),
+      env.DB.prepare("UPDATE command_queue SET status=?1, processed_at=?2, result_json=?3, lease_token=NULL, lease_until=NULL WHERE job_id=?4 AND status='processing' AND lease_token=?5 AND lease_until>?2").bind(status,now,result,id,body.lease_token)
+    ]);
+    if(!results[1]?.meta?.changes)return json({ok:false,error:'lease_conflict'},409);
+    return json({ok:true,job_id:id,status});
+  }
+  return json({ok:false,error:'method_not_allowed'},405);
+}
 export default {async fetch(request,env){try{const u=new URL(request.url),p=u.pathname,m=request.method.toUpperCase(),host=u.hostname.toLowerCase();
 const isAdmin=host==='admin.qslc-hei.com';
 if(!isAdmin){if(m==='GET'&&p==='/health')return json({ok:true,system:'QSLC_PUBLIC_EDGE',host,timestamp:new Date().toISOString()});if(m==='GET')return proxyPublic(u);return json({ok:false,error:'public_read_only'},405);}
+if(p.startsWith('/commands/'))return await deliverCommand(request,env,p,m);
 const version=await env.SSOT_KV?.get('qslc_ssot.version')||'UNKNOWN';const sha=await env.SSOT_KV?.get('qslc_ssot.sha256')||'';const lock=JSON.parse(await env.SSOT_KV?.get('write_lock.json')||'{"write_lock":false}');const csv=await env.SSOT_KV?.get('qslc_ssot.csv')||'date,day,workstream,total_screen_time_hours,productivity_hours,other_hours,utilities_hours,unclassified_hours,hourly_rate,gross,source,verification_status,ssot_role\n';
-if(m==='GET'&&(p==='/'||p==='/dashboard'))return new Response("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>EVE 1010 · Owner command</title><style>\n:root{color-scheme:dark}body{margin:0;background:#090d1b;color:#eef4ff;font:16px system-ui,sans-serif}main{max-width:900px;margin:auto;padding:30px 18px}h1{color:#b8ff83}section{padding:18px;margin:16px 0;border:1px solid #465079;border-radius:16px;background:#151b31}input,textarea,button{font:inherit;border-radius:8px;padding:12px;box-sizing:border-box}textarea,input{background:#090f22;border:1px solid #677697;color:white;width:100%}textarea{min-height:110px}button{background:#bdff82;color:#101323;font-weight:700;cursor:pointer;border:0}a{color:#a2daff}small{color:#b8c4d7}pre{white-space:pre-wrap;overflow-wrap:anywhere}label{display:block;margin:12px 0}\n</style></head><body><main><h1>EVE · Owner Command Center</h1><p>Submit an authorized request and receive a durable queue receipt. <b>Queued is not completed.</b> This console is intended to be restricted by Cloudflare Access.</p>\n<section><h2>1 · Evidence & connection status</h2><button id=\"check\" type=\"button\">Check current status</button><pre id=\"health\" aria-live=\"polite\">Not checked</pre><small>Green requires actual operational evidence; no simulated telemetry.</small></section>\n<section><h2>2 · Submit command</h2><form id=\"form\"><label>Request<textarea id=\"command\" minlength=\"4\" maxlength=\"4000\" required placeholder=\"Check Stripe webhook delivery; report evidence and errors.\"></textarea></label><label>Owner gateway token (required by current backend)<input id=\"token\" type=\"password\" autocomplete=\"off\" required placeholder=\"Enter only on the Cloudflare Access-protected owner page\"></label><button type=\"submit\">Send command to verified queue</button></form><pre id=\"result\" aria-live=\"polite\"></pre><small>Token is held only in this page's memory; it is not saved to browser storage. Never use a token in a public app or screenshot. A worker must separately process queue jobs; a receipt alone does not mean EVE executed your instruction.</small></section>\n<section><h2>3 · Owner tools</h2><p><a href=\"/api/agent/status\">Agent status</a> · <a href=\"/ssot/version\">SSOT version</a> · <a href=\"/metrics/summary\">Metrics</a> · <a href=\"/eve/brief\">Brief</a></p><p>For Google AI Studio, use the same authenticated command gateway through a server-side integration. Never embed owner gateway credentials in client-side code.</p></section></main>\n<script>\nconst $=id=>document.getElementById(id);\n$('check').onclick=async()=>{try{const [h,a]=await Promise.all([fetch('/api/health',{credentials:'same-origin',cache:'no-store'}),fetch('/api/agent/status',{credentials:'same-origin',cache:'no-store'})]);$('health').textContent=JSON.stringify({gateway:await h.json(),agent:await a.json()},null,2)}catch(e){$('health').textContent='FAILED: '+e.message}};\n$('form').onsubmit=async e=>{e.preventDefault();const command=$('command').value.trim();const token=$('token').value;if(!command||!token)return;$('result').textContent='Sending…';const key='eve-'+crypto.randomUUID();const body={source:'owner_dashboard',command_type:'natural_language_request',command,submitted_at:new Date().toISOString()};try{const response=await fetch('/base44/queue',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json','x-qslc-token':token,'idempotency-key':key},body:JSON.stringify(body)});const reply=await response.json();$('result').textContent=JSON.stringify({http_status:response.status,...reply},null,2);if(response.ok&&reply.queued)$('command').value='';}catch(error){$('result').textContent='FAILED: '+error.message;}};\n</script></body></html>",{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"}});
+if(m==='GET'&&(p==='/'||p==='/dashboard'))return new Response("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>EVE 1010 · Owner command</title><style>\n:root{color-scheme:dark}body{margin:0;background:#090d1b;color:#eef4ff;font:16px system-ui,sans-serif}main{max-width:900px;margin:auto;padding:30px 18px}h1{color:#b8ff83}section{padding:18px;margin:16px 0;border:1px solid #465079;border-radius:16px;background:#151b31}input,textarea,button{font:inherit;border-radius:8px;padding:12px;box-sizing:border-box}textarea,input{background:#090f22;border:1px solid #677697;color:white;width:100%}textarea{min-height:110px}button{background:#bdff82;color:#101323;font-weight:700;cursor:pointer;border:0}a{color:#a2daff}small{color:#b8c4d7}pre{white-space:pre-wrap;overflow-wrap:anywhere}label{display:block;margin:12px 0}\n</style></head><body><main><h1>EVE · Owner Command Center</h1><p>Submit status, brain status, or EVE_WAKE1010 and receive a durable queue receipt. <b>Queued is not completed.</b> This console is intended to be restricted by Cloudflare Access.</p>\n<section><h2>1 · Evidence & connection status</h2><button id=\"check\" type=\"button\">Check current status</button><pre id=\"health\" aria-live=\"polite\">Not checked</pre><small>Green requires actual operational evidence; no simulated telemetry.</small></section>\n<section><h2>2 · Submit command</h2><form id=\"form\"><label>Request<textarea id=\"command\" minlength=\"4\" maxlength=\"4000\" required placeholder=\"status\"></textarea></label><label>Owner gateway token (required by current backend)<input id=\"token\" type=\"password\" autocomplete=\"off\" required placeholder=\"Enter only on the Cloudflare Access-protected owner page\"></label><button type=\"submit\">Send command to verified queue</button></form><pre id=\"result\" aria-live=\"polite\"></pre><small>Token is held only in this page's memory; it is not saved to browser storage. Never use a token in a public app or screenshot. A worker must separately process queue jobs; a receipt alone does not mean EVE executed your instruction.</small></section>\n<section><h2>3 · Owner tools</h2><p><a href=\"/api/agent/status\">Agent status</a> · <a href=\"/ssot/version\">SSOT version</a> · <a href=\"/metrics/summary\">Metrics</a> · <a href=\"/eve/brief\">Brief</a></p><p>For Google AI Studio, use the same authenticated command gateway through a server-side integration. Never embed owner gateway credentials in client-side code.</p></section></main>\n<script>\nconst $=id=>document.getElementById(id);\n$('check').onclick=async()=>{try{const [h,a]=await Promise.all([fetch('/api/health',{credentials:'same-origin',cache:'no-store'}),fetch('/api/agent/status',{credentials:'same-origin',cache:'no-store'})]);$('health').textContent=JSON.stringify({gateway:await h.json(),agent:await a.json()},null,2)}catch(e){$('health').textContent='FAILED: '+e.message}};\n$('form').onsubmit=async e=>{e.preventDefault();const command=$('command').value.trim();const token=$('token').value;if(!command||!token)return;$('result').textContent='Sending…';const key='eve-'+crypto.randomUUID();const body={source:'owner_dashboard',command_type:'natural_language_request',command,submitted_at:new Date().toISOString()};try{const response=await fetch('/base44/queue',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json','x-qslc-token':token,'idempotency-key':key},body:JSON.stringify(body)});const reply=await response.json();$('result').textContent=JSON.stringify({http_status:response.status,...reply},null,2);if(response.ok&&reply.queued)$('command').value='';}catch(error){$('result').textContent='FAILED: '+error.message;}};\n</script></body></html>",{headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff','content-security-policy':"default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"}});
 if(m==='GET'&&(p==='/health'||p==='/api/health'))return json({ok:true,system:'QSLC_EVE_SOVEREIGN_CONSOLE',version,sha,write_lock:!!lock.write_lock,timestamp:new Date().toISOString()});
 if(m==='GET'&&p==='/api/agent/status')return json({ok:true,agent:'EVE',status:'unverified',version,sha,write_lock:!!lock.write_lock,ssot_connected:version!=='UNKNOWN'&&!!sha,cloudflare_status:'request_served',runtime_heartbeat:'unverified',timestamp:new Date().toISOString()});
 if(m==='GET'&&p==='/ssot/version')return json({version,sha,write_lock:!!lock.write_lock});
@@ -97,8 +142,9 @@ if(m==='GET'&&p==='/eve/brief')return json({ok:true,brief:'Cloudflare admin edge
 if(['/ssot/lock','/ssot/unlock','/ssot/write','/base44/queue','/d1/sync'].includes(p)&&!(await auth(request,env)))return json({ok:false,error:'unauthorized'},401);
 if(m==='POST'&&p==='/ssot/lock'){await env.SSOT_KV?.put('write_lock.json',JSON.stringify({write_lock:true,updated_at:new Date().toISOString()}));return json({ok:true,write_lock:true});}
 if(m==='POST'&&p==='/ssot/unlock'){await env.SSOT_KV?.put('write_lock.json',JSON.stringify({write_lock:false,updated_at:new Date().toISOString()}));return json({ok:true,write_lock:false});}
-if(m==='POST'&&p==='/ssot/write')return writeMetric(request,env,version,!!lock.write_lock);
-if(m==='POST'&&p==='/base44/queue')return queueCommand(request,env);
+if(m==='POST'&&p==='/ssot/write')return await writeMetric(request,env,version,!!lock.write_lock);
+if(m==='POST'&&p==='/base44/queue')return await queueCommand(request,env);
 if(m==='POST'&&p==='/d1/sync')return json({ok:false,error:'d1_sync_not_implemented',synced:false},501);
 if(m==='GET')return json({ok:false,error:'not_found',path:p},404);return json({ok:false,error:'method_not_allowed'},405);
-}catch(e){return json({ok:false,error:'worker_exception',detail:String(e?.message||e)},500);}}};
+}catch(e){return json({ok:false,error:e.status===413?'payload_too_large':'worker_exception'},e.status===413?413:500);}}};
+
