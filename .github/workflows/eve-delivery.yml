@@ -1,0 +1,18 @@
+name: EVE Command Delivery
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, fix/eve-command-delivery-20261028]
+permissions:
+  contents: read
+jobs:
+  delivery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node --check workers/qslc-admin-edge.mjs
+      - run: node --test scripts/admin-worker.test.mjs scripts/eve-delivery.test.mjs
