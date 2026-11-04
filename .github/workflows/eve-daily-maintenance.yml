@@ -5,6 +5,8 @@ on:
     # 08:00 America/Los_Angeles during standard time; GitHub schedules use UTC.
     - cron: '0 16 * * *'
   workflow_dispatch:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
     paths:
