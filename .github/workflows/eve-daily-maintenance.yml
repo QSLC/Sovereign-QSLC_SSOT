@@ -1,0 +1,103 @@
+name: EVE Daily Repository Maintenance
+
+on:
+  schedule:
+    # 08:00 America/Los_Angeles during standard time; GitHub schedules use UTC.
+    - cron: '0 16 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'src/**'
+      - 'workers/**'
+      - 'functions/**'
+      - 'migrations/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eve-daily-maintenance-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Check out authoritative repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install declared dependencies without changing the repository
+        run: npm install --no-package-lock --no-audit --no-fund
+
+      - name: Record dependency update candidates
+        shell: bash
+        run: |
+          mkdir -p maintenance-report
+          npm outdated --json > maintenance-report/dependency-status.json || true
+
+      - name: Validate EVE worker syntax and command delivery
+        run: |
+          node --check workers/qslc-admin-edge.mjs
+          node --test scripts/admin-worker.test.mjs scripts/eve-delivery.test.mjs
+
+      - name: Run QSLC contract, governance, privacy, publishing, and calculator tests
+        run: |
+          npm run public:test
+          npm run governance:test
+          npm run contract:test
+          npm run deploy:test
+          npm run privacy:test
+          npm run calculator:test
+          npm run publishing:test
+
+      - name: Run lint and production build
+        run: |
+          npm run lint
+          npm run build
+
+      - name: Write dated maintenance report
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "# EVE Daily Repository Maintenance"
+            echo
+            echo "- UTC time: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            echo "- Repository: ${GITHUB_REPOSITORY}"
+            echo "- Branch: ${GITHUB_REF_NAME}"
+            echo "- Commit: ${GITHUB_SHA}"
+            echo "- Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo "This report records automated checks. A successful run does not prove external account connectivity or autonomous EVE runtime operation."
+            echo
+            echo "## Git working-tree status"
+            git status --short
+            echo
+            echo "## Dependency update candidates"
+            if [ -s maintenance-report/dependency-status.json ]; then
+              cat maintenance-report/dependency-status.json
+            else
+              echo "No dependency report was produced."
+            fi
+          } > maintenance-report/README.md
+
+      - name: Preserve maintenance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eve-daily-maintenance-${{ github.run_id }}
+          path: maintenance-report/
+          if-no-files-found: warn
+          retention-days: 30
