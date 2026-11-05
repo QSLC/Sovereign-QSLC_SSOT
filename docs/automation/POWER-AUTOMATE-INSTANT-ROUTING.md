@@ -2,7 +2,7 @@
 
 **Status:** DESIGN READY / NOT DEPLOYED  
 **Owner:** QSLC work tenant  
-**Timestamp:** QSLC | EVE 1010 | America/Los_Angeles | 2026-11-05
+**Timestamp:** QSLC | EVE 1010 | America/Los_Angeles | 2026-11-05T15:17:08-08:00
 
 ## Target private destination
 OneDrive for Business / SharePoint document library, under `Documents/QSLC-SSOT/`:
@@ -32,7 +32,7 @@ OneDrive for Business / SharePoint document library, under `Documents/QSLC-SSOT/
    - audit packets/reports → `08_REPORTS_EVIDENCE`
    - uncertain, encrypted, unreadable, duplicate-ambiguous, or suspicious → `99_REVIEW_QUARANTINE`
 4. Check duplicates by available content hash plus size; filename alone is insufficient.
-5. Move only after a destination is resolved. Preserve metadata and record source path, destination, file ID, timestamp, and outcome in an append-only log.
+5. Move only after a destination is resolved. Preserve metadata and record source path, destination, file ID, and an ISO-8601 timestamp including the `America/Los_Angeles` UTC offset in an append-only log. Use the format `QSLC | EVE 1010 | America/Los_Angeles | YYYY-MM-DDTHH:mm:ss-08:00` (or `-07:00` during daylight time).
 6. On any failure, leave the original file in place and notify the owner. Never delete, overwrite, or empty recycle bins.
 
 ## Flow B — Outlook attachment intake
