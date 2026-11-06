@@ -7,6 +7,7 @@
 ## Target private destination
 OneDrive for Business / SharePoint document library, under `Documents/QSLC-SSOT/`:
 - `00_INTAKE`
+- `00_PROCESSING`
 - `01_FINANCE_BANKING`
 - `02_PAYROLL_HR`
 - `03_LEGAL_CONTRACTS`
@@ -19,7 +20,7 @@ OneDrive for Business / SharePoint document library, under `Documents/QSLC-SSOT/
 - `99_REVIEW_QUARANTINE`
 
 ## Flow A — single SharePoint classification worker
-1. Trigger: SharePoint **When a file is created (properties only)** on the Documents library. Configure a trigger condition to exclude files whose path is under `Documents/QSLC-SSOT/00_INTAKE/`; this prevents the same attachment from being classified by both intake and library triggers.
+1. Trigger: SharePoint **When a file is created (properties only)** scoped to `Documents/QSLC-SSOT/00_PROCESSING/` only. Do not watch the entire Documents library or the `00_INTAKE` folder. This ensures only the explicit handoff event starts classification.
 2. Read metadata and file content; preserve original file ID, path, name, size, created time, modified time, and eTag.
 3. Apply conservative classification. Route only high-confidence files by content and metadata:
    - bank statements/financial records → `01_FINANCE_BANKING`
@@ -39,9 +40,9 @@ OneDrive for Business / SharePoint document library, under `Documents/QSLC-SSOT/
 1. Trigger: Outlook **When a new email arrives (V3)**, with Has Attachments = Yes. Monitor only the QSLC work mailbox.
 2. Preserve sender, subject, received time, message ID, attachment name, and attachment size in the private audit record.
 3. Skip suspicious, password-protected, unsupported, or ambiguous attachments and notify the owner.
-4. Save eligible attachments to `Documents/QSLC-SSOT/00_INTAKE/` only. Flow B must not invoke classification or move the file. Flow A is the sole classifier and processes the new file once it arrives outside the excluded intake folder only after an explicit, separate handoff step moves it into the watched processing area.
-5. Do not auto-open attachments, click links, unsubscribe, or delete messages.
-6. Keep financial, legal, payroll, security, and account-recovery mail out of spam rules.
+4. Save eligible attachments to `Documents/QSLC-SSOT/00_INTAKE/`, write the intake receipt, then move the saved file once to `Documents/QSLC-SSOT/00_PROCESSING/`. Flow B must not classify or route the file. The move into `00_PROCESSING` is the single handoff that triggers Flow A, the sole classifier.
+5. If the handoff move fails, leave the original in `00_INTAKE`, log the failure and notify the owner; do not retry in parallel.\n6. Do not auto-open attachments, click links, unsubscribe, or delete messages.
+7. Keep financial, legal, payroll, security, and account-recovery mail out of spam rules.
 
 ## Flow C — low-risk marketing review
 1. Use sender reputation, authentication, unsubscribe headers, bulk-mail patterns, and message content.
@@ -63,7 +64,7 @@ OneDrive for Business / SharePoint document library, under `Documents/QSLC-SSOT/
 - Ambiguous encrypted file routes to Quarantine.
 - Duplicate content is flagged, not silently overwritten.
 - Simulated move failure leaves original untouched and writes a failure log.
-- Outlook attachment intake creates one item in 00_INTAKE and does not trigger a competing classifier.
+- Outlook attachment intake creates one item in 00_INTAKE, moves it once to 00_PROCESSING, and starts exactly one classifier run.
 - No file is deleted; no external/public sharing is created.
 - All logs include a full ISO-8601 timestamp and contain no secrets or unnecessary personal identifiers.
 
