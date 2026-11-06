@@ -1,0 +1,10 @@
+# Project-scoped Codex configuration.
+# Codex loads this only after the user trusts this repository.
+
+# Keep local execution constrained; do not silently bypass approvals.
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+enabled = true
