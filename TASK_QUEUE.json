@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-11-06",
+  "tasks": [
+    {
+      "id": "EVE-001",
+      "title": "Implement multi-agent architecture and governance artifacts",
+      "status": "IN_PROGRESS",
+      "priority": "P0",
+      "evidence": "Feature branch feat/eve-sovereign-multi-agent-v1-2026-11-06"
+    },
+    {
+      "id": "EVE-002",
+      "title": "Resolve Codex review findings on PR #34",
+      "status": "BLOCKED",
+      "priority": "P0",
+      "approval_required": false,
+      "notes": "Fix configuration placement, prevent attachment double-processing, clarify safe validation command policy."
+    },
+    {
+      "id": "EVE-003",
+      "title": "Validate scheduled read-only GitHub audit workflow",
+      "status": "P1"
+    },
+    {
+      "id": "EVE-004",
+      "title": "Verify local Codex runtime and iPhone pairing",
+      "status": "UNVERIFIED",
+      "priority": "P1"
+    },
+    {
+      "id": "EVE-005",
+      "title": "Deploy Microsoft 365 routing flows",
+      "status": "BLOCKED",
+      "priority": "P1",
+      "notes": "Requires authorized Power Automate environment and connector setup."
+    },
+    {
+      "id": "EVE-006",
+      "title": "Connect voice command routing to approved task bus",
+      "status": "NOT_STARTED",
+      "priority": "P2"
+    }
+  ]
+}
