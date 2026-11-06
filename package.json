@@ -14,6 +14,7 @@
     "contract:validate": "node scripts/validate-public-contract.mjs public/public-metrics.json",
     "deploy:test": "node scripts/check-deployment.test.mjs",
     "deploy:check": "node scripts/check-deployment.mjs",
+    "cloudflare:redirects:test": "node scripts/cloudflare-redirects.test.mjs",
     "privacy:test": "node scripts/privacy-scan.test.mjs",
     "privacy:scan": "node scripts/privacy-scan.mjs .",
     "privacy:scan:dist": "node scripts/privacy-scan.mjs dist",
