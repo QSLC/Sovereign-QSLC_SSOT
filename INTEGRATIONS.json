@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-11-06",
+  "classification": "PUBLIC_SANITIZED",
+  "integrations": [
+    {
+      "name": "GitHub",
+      "scope": "repository metadata, PRs, issues, files",
+      "status": "CONNECTED_FOR_THIS_SESSION",
+      "credential_storage": "managed connector; never export tokens"
+    },
+    {
+      "name": "OpenAI Developer Docs MCP",
+      "scope": "public read-only documentation",
+      "status": "CONFIGURED_ON_PR_NOT_MERGED",
+      "does_not_grant": [
+        "Microsoft 365",
+        "local device",
+        "production access"
+      ]
+    },
+    {
+      "name": "Power Automate",
+      "scope": "email/file routing workflows",
+      "status": "DESIGN_ONLY_NOT_DEPLOYED"
+    },
+    {
+      "name": "Cloudflare Pages",
+      "scope": "preview/deployment status",
+      "status": "PR_PREVIEW_EVIDENCE_ONLY",
+      "production_status": "NOT_VERIFIED_BY_THIS_CHANGE"
+    },
+    {
+      "name": "Stripe",
+      "scope": "future read-only financial visibility",
+      "status": "NOT_CONNECTED_BY_THIS_CHANGE"
+    },
+    {
+      "name": "Outlook and SharePoint",
+      "scope": "communication and document intake",
+      "status": "REQUIRES_AUTHORIZED_CONNECTOR_AND_SCOPE_VERIFICATION"
+    },
+    {
+      "name": "Local ROG Ally runtime",
+      "scope": "local Codex and computer workflows",
+      "status": "UNVERIFIED"
+    }
+  ]
+}
