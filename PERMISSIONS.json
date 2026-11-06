@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-11-06",
+  "policy": "least_privilege_human_approval",
+  "roles": [
+    {
+      "agent": "EVE_CORE",
+      "permissions": [
+        "read_connected_metadata",
+        "prioritize",
+        "route",
+        "write_sanitized_operational_artifacts"
+      ],
+      "denied": [
+        "execute_specialized_work_without_agent",
+        "bypass_approval"
+      ]
+    },
+    {
+      "agent": "CODEX_ENGINE",
+      "permissions": [
+        "read_repository",
+        "create_branch",
+        "edit_branch",
+        "run_tests",
+        "open_pull_request"
+      ],
+      "approval_required": [
+        "protected_branch_merge",
+        "production_deploy",
+        "secret_change",
+        "infrastructure_change"
+      ]
+    },
+    {
+      "agent": "COMMUNICATION_ENGINE",
+      "permissions": [
+        "read_authorized_mail",
+        "read_authorized_calendar",
+        "draft_response"
+      ],
+      "approval_required": [
+        "send_external_commitment",
+        "share_sensitive_content"
+      ]
+    },
+    {
+      "agent": "BUSINESS_ENGINE",
+      "permissions": [
+        "read_authorized_business_records",
+        "prepare_reports"
+      ],
+      "approval_required": [
+        "contract_execution",
+        "customer_commitment"
+      ]
+    },
+    {
+      "agent": "FINANCIAL_ENGINE",
+      "permissions": [
+        "read_authorized_financial_data",
+        "calculate_forecasts"
+      ],
+      "denied_without_explicit_authorization": [
+        "payments",
+        "transfers",
+        "payout_changes",
+        "spending",
+        "tax_submissions"
+      ]
+    },
+    {
+      "agent": "SECURITY_ENGINE",
+      "permissions": [
+        "read_security_posture",
+        "validate_backups",
+        "create_incidents"
+      ],
+      "approval_required": [
+        "permission_escalation",
+        "user_delete",
+        "destructive_remediation"
+      ]
+    },
+    {
+      "agent": "ANALYTICS_ENGINE",
+      "permissions": [
+        "aggregate_sanitized_metrics",
+        "generate_reports"
+      ]
+    },
+    {
+      "agent": "VOICE_ENGINE",
+      "permissions": [
+        "transcribe",
+        "normalize_command",
+        "request_workflow"
+      ],
+      "denied": [
+        "approval_bypass"
+      ]
+    }
+  ],
+  "secrets_policy": "Use managed secret stores and connector-managed credentials. Never commit or log secrets."
+}
