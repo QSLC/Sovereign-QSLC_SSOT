@@ -20,8 +20,8 @@ OneDrive for Business / SharePoint document library, under `Documents/QSLC-SSOT/
 - `99_REVIEW_QUARANTINE`
 
 ## Flow A — single SharePoint classification worker
-1. Trigger: SharePoint **When a file is created (properties only)** scoped to `Documents/QSLC-SSOT/00_PROCESSING/` only. Do not watch the entire Documents library or the `00_INTAKE` folder. This ensures only the explicit handoff event starts classification.
-2. Read metadata and file content; preserve original file ID, path, name, size, created time, modified time, and eTag.
+1. Trigger: SharePoint **When a file is created (properties only)** scoped to `Documents/QSLC-SSOT/00_PROCESSING/` only. Flow B creates a new file in this folder as the explicit handoff; do not rely on moving an existing item to generate a creation event.
+2. Read metadata and file content; preserve original file ID, path, name, size, created time, modified time, and eTag. Record the intake source item ID separately from the processing copy ID.
 3. Apply conservative classification. Route only high-confidence files by content and metadata:
    - bank statements/financial records → `01_FINANCE_BANKING`
    - payroll/HR → `02_PAYROLL_HR`
@@ -33,15 +33,16 @@ OneDrive for Business / SharePoint document library, under `Documents/QSLC-SSOT/
    - audit packets/reports → `08_REPORTS_EVIDENCE`
    - uncertain, encrypted, unreadable, duplicate-ambiguous, or suspicious → `99_REVIEW_QUARANTINE`
 4. Check duplicates by available content hash plus size; filename alone is insufficient.
-5. Move only after a destination is resolved. Preserve metadata and record source path, destination, file ID, and a full ISO-8601 timestamp including the `America/Los_Angeles` UTC offset in an append-only log.
-6. On any failure, leave the original file in place and notify the owner. Never delete, overwrite, or empty recycle bins.
+5. Move only the processing copy after a destination is resolved. Preserve the original intake copy until successful classification and evidence readback; never overwrite the source.
+6. On any failure, leave both source and processing copy in place, log the failure with a full ISO-8601 timestamp including the `America/Los_Angeles` UTC offset, and notify the owner. Never delete, overwrite, or empty recycle bins.
 
-## Flow B — Outlook attachment intake (no second classifier)
+## Flow B — Outlook attachment intake and explicit handoff
 1. Trigger: Outlook **When a new email arrives (V3)**, with Has Attachments = Yes. Monitor only the QSLC work mailbox.
 2. Preserve sender, subject, received time, message ID, attachment name, and attachment size in the private audit record.
 3. Skip suspicious, password-protected, unsupported, or ambiguous attachments and notify the owner.
-4. Save eligible attachments to `Documents/QSLC-SSOT/00_INTAKE/`, write the intake receipt, then move the saved file once to `Documents/QSLC-SSOT/00_PROCESSING/`. Flow B must not classify or route the file. The move into `00_PROCESSING` is the single handoff that triggers Flow A, the sole classifier.
-5. If the handoff move fails, leave the original in `00_INTAKE`, log the failure and notify the owner; do not retry in parallel.\n6. Do not auto-open attachments, click links, unsubscribe, or delete messages.
+4. Save each eligible attachment once to `Documents/QSLC-SSOT/00_INTAKE/`, write the intake receipt, then use SharePoint **Create file** to create a processing copy with a unique name/idempotency key in `00_PROCESSING/`. This new file-created event triggers Flow A exactly once. Flow B does not classify or route the file.
+5. If the processing-copy creation fails, retain the intake source, log the failure, and notify the owner. Use the email message ID + attachment ID as an idempotency key to prevent duplicate processing on retries.
+6. Do not auto-open attachments, click links, unsubscribe, or delete messages.
 7. Keep financial, legal, payroll, security, and account-recovery mail out of spam rules.
 
 ## Flow C — low-risk marketing review
@@ -63,8 +64,8 @@ OneDrive for Business / SharePoint document library, under `Documents/QSLC-SSOT/
 - New Stripe/Microsoft invoice routes to Subscriptions.
 - Ambiguous encrypted file routes to Quarantine.
 - Duplicate content is flagged, not silently overwritten.
-- Simulated move failure leaves original untouched and writes a failure log.
-- Outlook attachment intake creates one item in 00_INTAKE, moves it once to 00_PROCESSING, and starts exactly one classifier run.
+- Simulated processing-copy failure leaves the original intake item untouched and writes a failure log.
+- Outlook attachment intake creates one intake item, creates one processing copy, and starts exactly one classifier run.
 - No file is deleted; no external/public sharing is created.
 - All logs include a full ISO-8601 timestamp and contain no secrets or unnecessary personal identifiers.
 
