@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EVE Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_id", "schema_version", "timestamp", "source", "severity", "category", "description", "status", "classification", "idempotency_key", "provenance"],
+  "properties": {
+    "event_id": {"type": "string", "minLength": 1},
+    "schema_version": {"type": "string", "const": "1.0"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "source": {"type": "string", "minLength": 1},
+    "severity": {"type": "string", "enum": ["INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+    "category": {"type": "string", "minLength": 1},
+    "description": {"type": "string"},
+    "status": {"type": "string", "enum": ["OPEN", "ACKNOWLEDGED", "IN_PROGRESS", "BLOCKED", "RESOLVED", "CLOSED"]},
+    "classification": {"type": "string", "enum": ["CONNECTED", "SAMPLE", "SYNTHETIC"]},
+    "idempotency_key": {"type": "string", "minLength": 1},
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type", "source_reference", "observed_at"],
+      "properties": {
+        "source_type": {"type": "string", "enum": ["CONNECTED", "SAMPLE", "SYNTHETIC"]},
+        "source_reference": {"type": ["string", "null"]},
+        "observed_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "source_reference": {"type": ["string", "null"]},
+    "observed_at": {"type": ["string", "null"], "format": "date-time"},
+    "received_at": {"type": ["string", "null"], "format": "date-time"},
+    "requires_approval": {"type": "boolean"},
+    "approval_reference": {"type": ["string", "null"]},
+    "correlation_id": {"type": ["string", "null"]}
+  }
+}

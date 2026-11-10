@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-11-06",
+  "status": "UNVERIFIED",
+  "policy": "Before any destructive operation, capture a restorable backup and verify restore procedure.",
+  "entries": [
+    {
+      "resource": "QSLC/Sovereign-QSLC_SSOT",
+      "backup_type": "Git history and protected branch reference",
+      "backup_reference": "main",
+      "restore_test": "NOT_RUN",
+      "status": "VERSION_CONTROL_ONLY_NOT_A_RESTORE_VERIFIED_BACKUP"
+    },
+    {
+      "resource": "Private QSLC SSOT",
+      "backup_type": "External authorized private storage",
+      "backup_reference": null,
+      "restore_test": "NOT_AVAILABLE_IN_PUBLIC_REPOSITORY",
+      "status": "UNVERIFIED"
+    }
+  ],
+  "never_store_private_file_names_or_credentials": true
+}

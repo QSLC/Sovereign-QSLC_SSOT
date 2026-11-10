@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-11-06",
+  "classification": "PUBLIC_SANITIZED",
+  "repositories": [
+    {
+      "name": "QSLC/Sovereign-QSLC_SSOT",
+      "role": "canonical public code and sanitized SSOT index",
+      "default_branch": "main",
+      "visibility": "public",
+      "status": "VERIFIED",
+      "evidence": "GitHub repository metadata read 2026-11-06"
+    },
+    {
+      "name": "QSLC/QSLC_SOVEREIGN_DASHBOARD",
+      "role": "separate dashboard project",
+      "status": "UNVERIFIED",
+      "note": "Must not cross-deploy with the public site."
+    }
+  ],
+  "runtime_components": [
+    {
+      "name": "EVE Core",
+      "status": "DESIGN_IN_PROGRESS"
+    },
+    {
+      "name": "Codex Engine",
+      "status": "CONFIGURED_ON_PR",
+      "evidence": "PR #34; local runtime not verified"
+    },
+    {
+      "name": "Communication Engine",
+      "status": "NOT_CONNECTED_IN_THIS_WORKFLOW"
+    },
+    {
+      "name": "Business Engine",
+      "status": "DESIGN_ONLY"
+    },
+    {
+      "name": "Financial Engine",
+      "status": "DESIGN_ONLY"
+    },
+    {
+      "name": "Security Engine",
+      "status": "DESIGN_IN_PROGRESS"
+    },
+    {
+      "name": "Analytics Engine",
+      "status": "DESIGN_ONLY"
+    },
+    {
+      "name": "Voice Engine",
+      "status": "DESIGN_ONLY"
+    }
+  ],
+  "private_data_excluded": true
+}

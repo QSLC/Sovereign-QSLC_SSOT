@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-11-06",
+  "incidents": [
+    {
+      "id": "INC-EVE-PR34-001",
+      "severity": "MEDIUM",
+      "category": "CODE_REVIEW",
+      "status": "INVESTIGATING",
+      "source": "QSLC/Sovereign-QSLC_SSOT#34",
+      "summary": "Codex review identified configuration placement and workflow policy issues; additional routing race finding requires remediation.",
+      "sensitive_details_excluded": true
+    },
+    {
+      "id": "INC-EVE-AUTOMATION-001",
+      "severity": "MEDIUM",
+      "category": "INTEGRATION",
+      "status": "BLOCKED",
+      "source": "PR #34 automation blueprint",
+      "summary": "Power Automate routing is documented but not deployed."
+    }
+  ]
+}

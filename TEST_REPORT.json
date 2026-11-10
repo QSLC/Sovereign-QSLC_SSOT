@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-11-06",
+  "status": "NOT_RUN",
+  "scope": "EVE multi-agent architecture v1.0",
+  "tests": [],
+  "notes": [
+    "This file is a template. CI execution evidence will be recorded by the scheduled workflow artifact.",
+    "Do not mark tests passed until the workflow has run against the current commit."
+  ]
+}

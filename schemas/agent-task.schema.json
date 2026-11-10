@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EVE Agent Task",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["task_id", "agent_id", "title", "status", "priority", "created_at", "approval_required"],
+  "properties": {
+    "task_id": {"type": "string", "minLength": 1},
+    "agent_id": {"type": "string", "enum": ["EVE_CORE", "CODEX_ENGINE", "COMMUNICATION_ENGINE", "BUSINESS_ENGINE", "FINANCIAL_ENGINE", "SECURITY_ENGINE", "ANALYTICS_ENGINE", "VOICE_ENGINE"]},
+    "title": {"type": "string", "minLength": 1},
+    "description": {"type": "string"},
+    "status": {"type": "string", "enum": ["RECEIVED", "VALIDATED", "UNVERIFIED", "QUEUED", "AUTHORIZED", "EXECUTING", "IN_PROGRESS", "TESTING", "VERIFIED", "BLOCKED", "FAILED", "CANCELLED"]},
+    "priority": {"type": "string", "enum": ["P0", "P1", "P2", "P3"]},
+    "created_at": {"type": "string", "format": "date-time"},
+    "due_at": {"type": ["string", "null"], "format": "date-time"},
+    "approval_required": {"type": "boolean"},
+    "approval_status": {"type": "string", "enum": ["NOT_REQUIRED", "PENDING", "APPROVED", "REJECTED"]},
+    "evidence_refs": {"type": "array", "items": {"type": "string"}},
+    "idempotency_key": {"type": "string"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"approval_required": {"const": true}}, "required": ["approval_required"]},
+      "then": {"required": ["approval_status"], "properties": {"approval_status": {"enum": ["PENDING", "APPROVED", "REJECTED"]}}}
+    },
+    {
+      "if": {"properties": {"status": {"enum": ["AUTHORIZED", "EXECUTING", "IN_PROGRESS", "TESTING", "VERIFIED"]}}, "required": ["status"]},
+      "then": {"properties": {"approval_status": {"enum": ["NOT_REQUIRED", "APPROVED"]}}}
+    },
+    {
+      "if": {"properties": {"approval_required": {"const": false}}, "required": ["approval_required"]},
+      "then": {"properties": {"approval_status": {"enum": ["NOT_REQUIRED", "PENDING", "APPROVED", "REJECTED"]}}}
+    }
+  ]
+}
