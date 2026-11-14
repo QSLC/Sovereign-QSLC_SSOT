@@ -34,7 +34,7 @@ export async function onRequestPost({ request, env }) {
       if (!env.ENTITLEMENTS?.get || !env.ENTITLEMENTS?.put) {
         return json({ ok: false, error: 'entitlement_store_unavailable' }, 503)
       }
-      const key = 'session:' + session.id
+      const key = `session:${session.id}`
       try {
         // Sequential replays are no-ops; a missing KV value is recoverable.
         if (!(await env.ENTITLEMENTS.get(key))) {
@@ -84,7 +84,7 @@ async function verifyStripeSignature(header, body, secret) {
   const mac = await crypto.subtle.sign(
     'HMAC',
     key,
-    new TextEncoder().encode(timestamp + '.' + body),
+    new TextEncoder().encode(`${timestamp}.${body}`),
   )
 
   const expected = [...new Uint8Array(mac)]

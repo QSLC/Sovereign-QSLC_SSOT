@@ -1,7 +1,7 @@
 {
   "system": "EVE-WAKE1010 / QSLC SOVEREIGN HYBRID",
   "schema_version": "1.0.0",
-  "updated_utc": "2026-11-13",
+  "updated_utc": "2026-11-14",
   "classification": "PUBLIC_SAFE_MANIFEST_ONLY",
   "overall_status": "UNVERIFIED",
   "components": [
@@ -33,7 +33,9 @@
     {
       "id": "github-source-control",
       "status": "VERIFIED",
-      "evidence": "Authenticated GitHub repository QSLC/Sovereign-QSLC_SSOT read/write permission confirmed; feature branch created."
+      "evidence": "Authenticated GitHub read/write access exercised by fetching repository files and committing the employee-operations blueprint; follow-up PR branch created.",
+      "verified_at_utc": "2026-11-14T18:55:27Z",
+      "evidence_ref": "https://github.com/QSLC/Sovereign-QSLC_SSOT/tree/qslc-employee-ops-c-corp-2026-11-14"
     },
     {
       "id": "cloudflare-endpoints",

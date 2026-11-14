@@ -7,7 +7,7 @@ export async function onRequestGet({ request, env }) {
     return json({ authorized: false, reason: 'missing_or_invalid_session' }, 400)
   }
 
-  const raw = await env.ENTITLEMENTS.get('session:' + sessionId)
+  const raw = await env.ENTITLEMENTS.get(`session:${sessionId}`)
   if (!raw) return json({ authorized: false, reason: 'not_found' }, 404)
 
   const entitlement = JSON.parse(raw)

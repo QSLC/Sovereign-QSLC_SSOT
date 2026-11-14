@@ -1,0 +1,35 @@
+{
+  "company": {
+    "legal_name": "Quantum Sovereign Logistics Corp.",
+    "tax_classification": "C_CORPORATION",
+    "classification_source": "OWNER_STATED_2026-11-14",
+    "classification_verified": false
+  },
+  "systems": {
+    "payroll_timekeeping": "Paychex Flex",
+    "collaboration": "Microsoft 365",
+    "operations_portal": "QSLC Employee Portal / EVE",
+    "payroll_is_external_system_of_record": true
+  },
+  "pay_cycle": {
+    "frequency": "BIWEEKLY",
+    "status": "PROPOSED_NOT_APPROVED",
+    "scheduled_paydays_per_year": 26
+  },
+  "roles": [
+    {"id":"ceo_president","title":"CEO / President","department":"Executive","access":["executive_dashboard"],"pay_type":"UNSET","pay_rate":null,"approval_status":"NOT_APPROVED"},
+    {"id":"operations_manager","title":"Operations Manager","department":"Operations","access":["team_schedule","operations_assignments"],"pay_type":"UNSET","pay_rate":null,"approval_status":"NOT_APPROVED"},
+    {"id":"dispatcher","title":"Dispatcher / Coordinator","department":"Logistics","access":["dispatch_board","assigned_routes"],"pay_type":"UNSET","pay_rate":null,"approval_status":"NOT_APPROVED"},
+    {"id":"driver_courier","title":"Driver / Courier","department":"Logistics","access":["assigned_routes","own_timecard_link"],"pay_type":"UNSET","pay_rate":null,"approval_status":"NOT_APPROVED"},
+    {"id":"security_personnel","title":"Security Personnel","department":"Security","access":["assigned_security_posts","own_timecard_link"],"pay_type":"UNSET","pay_rate":null,"approval_status":"NOT_APPROVED"},
+    {"id":"hr_payroll_admin","title":"HR / Payroll Administrator","department":"Administration","access":["employee_onboarding","payroll_admin_if_authorized"],"pay_type":"UNSET","pay_rate":null,"approval_status":"NOT_APPROVED"},
+    {"id":"systems_admin","title":"Systems / IT Administrator","department":"Technology","access":["system_health","technical_support"],"pay_type":"UNSET","pay_rate":null,"approval_status":"NOT_APPROVED"},
+    {"id":"business_development","title":"Business Development","department":"Sales","access":["crm_assigned_records","sales_pipeline"],"pay_type":"UNSET","pay_rate":null,"approval_status":"NOT_APPROVED"}
+  ],
+  "security": {
+    "mfa_required": true,
+    "least_privilege": true,
+    "employee_personal_data_in_public_repo": false,
+    "payroll_data_in_public_repo": false
+  }
+}
