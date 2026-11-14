@@ -18,10 +18,7 @@ class EmployeeConfigTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "config.json"
             path.write_text(json.dumps(data), encoding="utf-8")
-            return subprocess.run(
-                [sys.executable, str(VALIDATOR), str(path)],
-                capture_output=True, text=True, check=False
-            )
+            return subprocess.run([sys.executable, str(VALIDATOR), str(path)], capture_output=True, text=True, check=False)
 
     def test_example_template_passes(self):
         result = self.run_validator(self.data)
@@ -45,12 +42,23 @@ class EmployeeConfigTests(unittest.TestCase):
 
     def test_rejects_public_employee_data(self):
         bad = copy.deepcopy(self.data)
-        bad["security"]["employee_personal_data_in_public_repo"] = True
+        bad["roles"][0]["employee_name"] = "Synthetic Person"
+        self.assertEqual(self.run_validator(bad).returncode, 1)
+
+    def test_rejects_nested_ssn(self):
+        bad = copy.deepcopy(self.data)
+        bad["roles"][0]["notes"] = {"ssn": "000-00-0000"}
         self.assertEqual(self.run_validator(bad).returncode, 1)
 
     def test_rejects_duplicate_role_ids(self):
         bad = copy.deepcopy(self.data)
         bad["roles"][1]["id"] = bad["roles"][0]["id"]
+        self.assertEqual(self.run_validator(bad).returncode, 1)
+
+    def test_rejects_boolean_pay_rate(self):
+        bad = copy.deepcopy(self.data)
+        bad["roles"][0]["approval_status"] = "APPROVED"
+        bad["roles"][0]["pay_rate"] = True
         self.assertEqual(self.run_validator(bad).returncode, 1)
 
 if __name__ == "__main__":
