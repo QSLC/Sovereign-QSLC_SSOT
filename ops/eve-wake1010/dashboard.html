@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EVE-WAKE1010 | Hybrid Operations</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#080b16;color:#e9f1ff}
+body{margin:0;padding:28px;max-width:1100px;margin:auto}
+header,.card{border:1px solid #293451;border-radius:16px;background:#10182a;padding:20px}
+h1{color:#9deaff;margin:0 0 8px}.muted{color:#9ba9c4}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:18px}
+.status{font-weight:700;color:#f6d47a}.card h2{font-size:1rem;margin:0 0 8px}
+code{color:#a9e6ff}button{padding:10px 14px;border-radius:9px;border:1px solid #567;background:#1c2c49;color:white}
+</style>
+</head>
+<body>
+<header><h1>EVE-WAKE1010</h1><div class="muted">QSLC Sovereign Hybrid • Local readiness view</div>
+<p class="status">UNVERIFIED — awaiting a locally generated supervisor report</p>
+<p class="muted">This page does not establish live connections. Load a JSON report produced by <code>python supervisor.py --json</code>.</p>
+<input id="file" type="file" accept="application/json"><button id="load">Load report</button><div id="summary" class="muted"></div></header>
+<section id="grid" class="grid"></section>
+<script>
+const file=document.getElementById('file'),grid=document.getElementById('grid'),summary=document.getElementById('summary');
+document.getElementById('load').onclick=async()=>{
+ if(!file.files[0]){summary.textContent='Choose a supervisor JSON report first.';return}
+ try{const r=JSON.parse(await file.files[0].text());summary.textContent=r.overall_status+' • '+r.generated_at+' • '+r.mode;
+ grid.replaceChildren();for(const c of r.components||[]){const el=document.createElement('article');el.className='card';
+ const h=document.createElement('h2');h.textContent=c.component;const s=document.createElement('div');s.className='status';s.textContent=c.status;
+ const p=document.createElement('p');p.className='muted';p.textContent=c.note||('Missing: '+(c.missing_variables||[]).join(', '));
+ el.append(h,s,p);grid.append(el)}}catch(e){summary.textContent='Invalid report: '+e.message}
+};
+</script>
+</body></html>
