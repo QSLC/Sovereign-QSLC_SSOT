@@ -29,7 +29,7 @@ export default {
       if (!sessionId.startsWith('cs_')) {
         return json({ authorized: false, reason: 'missing_or_invalid_session' }, 400)
       }
-      const raw = await env.ENTITLEMENTS.get('session:' + sessionId)
+      const raw = await env.ENTITLEMENTS.get(`session:${sessionId}`)
       if (!raw) return json({ authorized: false, reason: 'not_found' }, 404)
       const entitlement = JSON.parse(raw)
       const authorized = !product || entitlement.product === product || entitlement.product === 'vault'
@@ -98,7 +98,7 @@ async function verifyStripeSignature(header, body, secret) {
     false,
     ['sign'],
   )
-  const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(timestamp + '.' + body))
+  const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${timestamp}.${body}`))
   const expected = [...new Uint8Array(mac)].map(b => b.toString(16).padStart(2, '0')).join('')
   return signatures.some(sig => timingSafeEqual(expected, sig))
 }
