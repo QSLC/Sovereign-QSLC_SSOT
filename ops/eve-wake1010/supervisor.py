@@ -28,7 +28,7 @@ def build_report():
     return {
         "system": "EVE-WAKE1010 / QSLC SOVEREIGN HYBRID",
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "provenance": "QSLC | EVE 1010 | America/Los_Angeles | READ_ONLY_CONFIGURATION_PROBE",
+        "provenance": f"QSLC | EVE 1010 | America/Los_Angeles | {datetime.now(timezone.utc).isoformat()}",
         "mode": "READ_ONLY_CONFIGURATION_PROBE",
         "overall_status": "CONFIGURATION_PARTIAL" if any(x["missing_variables"] for x in items) else "CONFIGURED_NOT_VERIFIED",
         "components": items,
