@@ -118,7 +118,7 @@ async function deliverCommand(request,env,path,method){
     if(!body||typeof body.ok!=='boolean'||typeof body.lease_token!=='string'||!body.result||typeof body.result!=='object'||Array.isArray(body.result))return json({ok:false,error:'invalid_result'},400);
     const status=body.ok?'completed':'failed',result=JSON.stringify(body.result);
     const results=await env.DB.batch([
-      env.DB.prepare("INSERT INTO audit_log(created_at,actor,action,object_path,notes) SELECT ?1,'eve-local-consumer',?2,?3,?4 WHERE EXISTS (SELECT 1 FROM command_queue WHERE job_id=?5 AND status='processing' AND lease_token=?6 AND lease_until>?1)").bind(now,'command_'+status,'command_queue/'+id,JSON.stringify({job_id:id}),id,body.lease_token),
+      env.DB.prepare("INSERT INTO audit_log(created_at,actor,action,object_path,notes) SELECT ?1,'eve-local-consumer',?2,?3,?4 WHERE EXISTS (SELECT 1 FROM command_queue WHERE job_id=?5 AND status='processing' AND lease_token=?6 AND lease_until>?1)").bind(now,`command_${status}`,`command_queue/${id}`,JSON.stringify({job_id:id}),id,body.lease_token),
       env.DB.prepare("UPDATE command_queue SET status=?1, processed_at=?2, result_json=?3, lease_token=NULL, lease_until=NULL WHERE job_id=?4 AND status='processing' AND lease_token=?5 AND lease_until>?2").bind(status,now,result,id,body.lease_token)
     ]);
     if(!results[1]?.meta?.changes)return json({ok:false,error:'lease_conflict'},409);
