@@ -34,7 +34,7 @@
       "id": "github-source-control",
       "status": "VERIFIED",
       "evidence": "Authenticated GitHub read/write access exercised by fetching repository files and committing the employee-operations blueprint; follow-up PR branch created.",
-      "verified_at_utc": "2026-11-14T18:45:00Z",
+      "verified_at_utc": "2026-11-14T18:55:27Z",
       "evidence_ref": "https://github.com/QSLC/Sovereign-QSLC_SSOT/tree/qslc-employee-ops-c-corp-2026-11-14"
     },
     {
