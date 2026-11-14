@@ -10,7 +10,17 @@ $commands = foreach ($name in $checks) {
 $paths = @(
   'C:\QSLC', 'C:\QSLC\EVE', 'C:\QSLC\EVE\eve_wake.ps1',
   'C:\QSLC\Dashboard', 'C:\QSLC\Dashboard\qslc_dashboard.html',
-  'C:\Users\Qslc1\SovereignHQ', 'C:\Users\Qslc1\SovereignHQ\QSLC'
+  'C:\Users\Qslc1\SovereignHQ', 'C:\Users\Qslc1\SovereignHQ\QSLC',
+  'C:\Users\Qslc1\SovereignHQ\00_CONTROL\HEICLI.ps1',
+  'C:\Users\Qslc1\SovereignHQ\HEICLI.cmd', 'C:\Users\Qslc1\SovereignHQ\EVE-LOCAL.cmd',
+  'C:\Users\Qslc1\SovereignHQ\00_QUICK_ACCESS\START_EVE_LOCAL_AI.ps1',
+  'C:\CEC_WAM_ROG\DATA\Sovereign_Vault',
+  'C:\CEC_WAM_ROG\DATA\Sovereign_Vault\eve_brain.json',
+  'C:\CEC_WAM_ROG\DATA\Sovereign_Vault\eve_agent.py',
+  'C:\CEC_WAM_ROG\DATA\Sovereign_Vault\EveKernel.ps1',
+  'C:\EVE_LOCAL', 'C:\EVE_LOCAL\scripts\START_EVE_CLI.cmd',
+  'C:\EVE_LOCAL\scripts\START_EVE_VOICE.cmd',
+  'C:\Users\Qslc1\eve-hei', 'C:\Users\Qslc1\eve-hei\src\react-app'
 ) | ForEach-Object { [pscustomobject]@{ Path=$_; Exists=Test-Path -LiteralPath $_ } }
 $ports = foreach ($port in @(11434,8502,5174)) {
   $listening = Get-NetTCPConnection -State Listen -LocalPort $port -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -21,6 +31,19 @@ $computer = Get-CimInstance Win32_ComputerSystem -ErrorAction SilentlyContinue
 $gpu = Get-CimInstance Win32_VideoController -ErrorAction SilentlyContinue | Select-Object Name,DriverVersion
 $ollamaModels = $null
 if (Get-Command ollama -ErrorAction SilentlyContinue) { $ollamaModels = (& ollama list 2>&1 | Out-String).Trim() }
+$brainCandidates = @(
+  'C:\CEC_WAM_ROG\DATA\Sovereign_Vault\eve_brain.json',
+  'C:\EVE_LOCAL\eve_brain.json'
+)
+$brainEvidence = foreach ($candidate in $brainCandidates) {
+  if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+    $item = Get-Item -LiteralPath $candidate
+    $hash = Get-FileHash -LiteralPath $candidate -Algorithm SHA256
+    [pscustomobject]@{ Path=$candidate; Exists=$true; SizeBytes=$item.Length; ModifiedUtc=$item.LastWriteTimeUtc.ToString('o'); SHA256=$hash.Hash }
+  } else {
+    [pscustomobject]@{ Path=$candidate; Exists=$false; SizeBytes=$null; ModifiedUtc=$null; SHA256=$null }
+  }
+}
 $report = [pscustomobject]@{
   provenance = "QSLC | EVE 1010 | America/Los_Angeles | $stamp"
   mode = 'READ_ONLY_ROGLEX_INVENTORY'
@@ -35,6 +58,7 @@ $report = [pscustomobject]@{
   local_ports = @($ports)
   gpu = @($gpu)
   ollama_models = $ollamaModels
+  original_brain_candidates = @($brainEvidence)
   notes = @('No software was installed or changed.','No secret values were read or emitted.','Historical paths are probes only; missing does not mean data was deleted.')
 }
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
