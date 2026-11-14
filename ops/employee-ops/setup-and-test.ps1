@@ -5,7 +5,8 @@ $ErrorActionPreference = "Stop"
 $python = Get-Command python -ErrorAction SilentlyContinue
 if (-not $python) { throw "Python 3 is required. Install Python 3.11+ and reopen PowerShell." }
 $version = & python --version 2>&1
-Write-Host "QSLC | EVE 1010 | America/Los_Angeles | Employee Operations validation"
+$runStamp = (Get-Date).ToUniversalTime().ToString("o")
+Write-Host "QSLC | EVE 1010 | America/Los_Angeles | $runStamp"
 Write-Host "Repository: $RepoRoot"
 Write-Host "Python: $version"
 Push-Location $RepoRoot
