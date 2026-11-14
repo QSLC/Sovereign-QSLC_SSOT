@@ -1,0 +1,66 @@
+{
+  "system": "EVE-WAKE1010 / QSLC SOVEREIGN HYBRID",
+  "schema_version": "1.0.0",
+  "updated_utc": "2026-11-13",
+  "classification": "PUBLIC_SAFE_MANIFEST_ONLY",
+  "overall_status": "UNVERIFIED",
+  "components": [
+    {
+      "id": "chatgpt-command-interface",
+      "status": "AVAILABLE_IN_CURRENT_SESSION",
+      "evidence": "ChatGPT session tools are available; no persistent EVE bridge is established."
+    },
+    {
+      "id": "original-eve-brain",
+      "status": "UNVERIFIED",
+      "evidence": "Source file and checksum not retrieved in this execution."
+    },
+    {
+      "id": "mcp-command-bus",
+      "status": "UNVERIFIED",
+      "evidence": "No EVE-owned MCP server endpoint authenticated."
+    },
+    {
+      "id": "hermes-agent",
+      "status": "UNVERIFIED",
+      "evidence": "Local agent runtime not probed."
+    },
+    {
+      "id": "rog-ally-local-runtime",
+      "status": "UNVERIFIED",
+      "evidence": "No connection to the user's ROG Ally in this session."
+    },
+    {
+      "id": "github-source-control",
+      "status": "VERIFIED",
+      "evidence": "Authenticated GitHub repository QSLC/Sovereign-QSLC_SSOT read/write permission confirmed; feature branch created."
+    },
+    {
+      "id": "cloudflare-endpoints",
+      "status": "UNVERIFIED",
+      "evidence": "No live DNS/Worker/API health test performed."
+    },
+    {
+      "id": "azure-runtime",
+      "status": "UNVERIFIED",
+      "evidence": "No live Azure resource health test performed."
+    },
+    {
+      "id": "private-ssot-sync",
+      "status": "UNVERIFIED",
+      "evidence": "No private SSOT endpoint or sync job authenticated."
+    },
+    {
+      "id": "private-operations-dashboard",
+      "status": "UNVERIFIED",
+      "evidence": "Only a local status-view scaffold is included; no private dashboard deployed."
+    }
+  ],
+  "rules": {
+    "neverExposeSecrets": true,
+    "neverCommitPrivateBrain": true,
+    "publicDemoDataMustBeSynthetic": true,
+    "verifiedRequiresLiveTest": true,
+    "writeOperationsRequireExplicitAuthorization": true
+  }
+}
